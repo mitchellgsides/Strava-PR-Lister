@@ -71,4 +71,28 @@ console.log(normPow(responseObject.watts.data, 500, 600));
 Below is HOW I'll grant access and then gather data for the app.
 
 */
+/*currently not needed
+$('#step1').on('submit', function(event) {
+    event.preventDefault();
 
+})
+*/
+
+$('#step2').on('submit', function(event) {
+    event.preventDefault();
+    let currentLocation = window.location;
+    console.log(currentLocation);
+})
+
+$('#step3').on('submit', function(event) {
+    event.preventDefault();
+})
+
+$('#step4').on('submit', function(event) {
+    event.preventDefault();
+})
+
+$('#step5').on('submit', function(event) {
+    event.preventDefault();
+
+})
