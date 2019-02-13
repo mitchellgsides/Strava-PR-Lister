@@ -88,26 +88,39 @@ $('#step1').on('submit', function(event) {
     //window.location.search.split(/&|=/)[3];
 //s})
 
+let accessToken;
+let refreshToken;
+
 $('#step3').on('click', function(event) {
     event.preventDefault();
     //postRequest
     $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=b7abbcd02c9483f9007218aaf47f7a0e929e9ee1&code=${accessCode[3]}&grant_type=authorization_code`, function(data, status) {
       console.log("Data" + data + "Status: " + status);
       console.log(data);
-      const accessToken = data.access_token;
-      const refreshToken = data.refresh_token;
-      console.log(accessToken);
-      console.log(refreshToken);
-      $.get(`https://strava.com/api/v3/athletes/249995/activities?
-access_token=${accessToken}`, function(data, status) {
-  console.log(data[0].name);
-})
-    }, 'json');
-})
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+    })
+    return accessToken, refreshToken;
+  });
+
 
 $('#step4').on('click', function(event) {
     event.preventDefault();
+    let activityNames = $.get(`https://www.strava.com/api/v3/athletes/249995/activities?access_token=${accessToken}`, function(data, status) {
+      $('#js-activity-list').empty();
+      console.log(status);
+      console.log(data[0].name);
+      console.log(data);
+      for(let i = 0; i < 30; i++) {
+      $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" id="js-get-power-list-item">${data[i].name}</a></li>`);
+      }
+      $('#js-get-power-list-item').on('click', function(event) {
+        event.preventDefault();
+          $('#js-get-power-list-item').append(`<ul id=average-power-activity-${i}>Average Power = some Data<li>`)
+      })
+    } , 'json');
 })
+
 
 $('#step5').on('click', function(event) {
     event.preventDefault();
