@@ -77,22 +77,39 @@ $('#step1').on('submit', function(event) {
 
 })
 */
+//get "code" from returned URL
 
-$('#step2').on('submit', function(event) {
+//$('#step2').on('click', function (event) {
+  //  event.preventDefault();
+    //will be replaced after auth
+    const currentLocation = 'https:mitchellgsides.github.io/Strava-PR-Lister/?state=&code=bd09d1f3d0667b746dbda1993f64d77d5ce80e41&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write'
+    const accessCode = currentLocation.split(/&|=/);
+    console.log(accessCode[3]);
+    //window.location.search.split(/&|=/)[3];
+//s})
+
+$('#step3').on('click', function(event) {
     event.preventDefault();
-    let currentLocation = window.location;
-    console.log(currentLocation);
+    //postRequest
+    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=b7abbcd02c9483f9007218aaf47f7a0e929e9ee1&code=${accessCode[3]}&grant_type=authorization_code`, function(data, status) {
+      console.log("Data" + data + "Status: " + status);
+      console.log(data);
+      const accessToken = data.access_token;
+      const refreshToken = data.refresh_token;
+      console.log(accessToken);
+      console.log(refreshToken);
+      $.get(`https://strava.com/api/v3/athletes/249995/activities?
+access_token=${accessToken}`, function(data, status) {
+  console.log(data[0].name);
+})
+    }, 'json');
 })
 
-$('#step3').on('submit', function(event) {
+$('#step4').on('click', function(event) {
     event.preventDefault();
 })
 
-$('#step4').on('submit', function(event) {
-    event.preventDefault();
-})
-
-$('#step5').on('submit', function(event) {
+$('#step5').on('click', function(event) {
     event.preventDefault();
 
 })
