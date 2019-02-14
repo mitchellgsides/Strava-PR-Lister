@@ -103,23 +103,38 @@ $('#step3').on('click', function(event) {
     return accessToken, refreshToken;
   });
 
+let activityPower;
+let activityID;
 
 $('#step4').on('click', function(event) {
     event.preventDefault();
     let activityNames = $.get(`https://www.strava.com/api/v3/athletes/249995/activities?access_token=${accessToken}`, function(data, status) {
+      //empty previous requests
       $('#js-activity-list').empty();
       console.log(status);
       console.log(data[0].name);
       console.log(data);
+      //generate list of available rides
       for(let i = 0; i < 30; i++) {
-      $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" id="js-get-power-list-item">${data[i].name}</a></li>`);
-      }
-      $('#js-get-power-list-item').on('click', function(event) {
-        event.preventDefault();
-          $('#js-get-power-list-item').append(`<ul id=average-power-activity-${i}>Average Power = some Data<li>`)
-      })
+        $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" class="js-activity-list-item" id=${data[i].id}">${data[i].name}</a></li>`);
+        activityID = data[i].id;
+        }
+        //get link id for power data return request
+        $('.js-activity-list-item').on('click', function(event) {
+          event.preventDefault();
+          let activityID = $(this).attr('id');
+          console.log(activityID);
+        //get power data for clicked activity
+        $.get(`https://strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true`, function(data, status) {
+      
+    }, 'json'
+    )
+  })
     } , 'json');
 })
+
+
+function getPowerData(activity) {};
 
 
 $('#step5').on('click', function(event) {
