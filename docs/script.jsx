@@ -125,12 +125,12 @@ $('#step4').on('click', function(event) {
           let activityID = $(this).attr('id');
           console.log(activityID);
         //get power data for clicked activity
-        $.get(`https://strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true`, function(data, status) {
+        $.get(`https://www.strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
       
-    }, 'json'
+    }, 'jsonp'
     )
   })
-    } , 'json');
+    } , 'jsonp');
 })
 
 
