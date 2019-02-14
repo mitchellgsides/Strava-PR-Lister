@@ -84,8 +84,7 @@ let accessCode;
 $('#step2').on('click', function (event) {
     event.preventDefault();
     //will be replaced after auth
-    //currentLocation = window.location.search;
-    currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=4c7521d00a802bd4c59309d1d2547bf8c22fea8b&scope=read,activity:write,activity:read_all,profile:write,profile:read_all,read_all';
+    currentLocation = window.location.search;
     console.log(currentLocation);
     accessCode = currentLocation.split(/&|=/);
     console.log(accessCode[3]);
