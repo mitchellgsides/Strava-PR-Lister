@@ -78,15 +78,15 @@ $('#step1').on('submit', function(event) {
 })
 */
 //get "code" from returned URL
-
-//$('#step2').on('click', function (event) {
-  //  event.preventDefault();
+let currentLocation;
+$('#step2').on('click', function (event) {
+    event.preventDefault();
     //will be replaced after auth
-    const currentLocation = 'https:mitchellgsides.github.io/Strava-PR-Lister/?state=&code=bd09d1f3d0667b746dbda1993f64d77d5ce80e41&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write'
+    currentLocation = window.location.search;
+    console.log(currentLocation);
     const accessCode = currentLocation.split(/&|=/);
     console.log(accessCode[3]);
-    //window.location.search.split(/&|=/)[3];
-//s})
+})
 
 let accessToken;
 let refreshToken;
@@ -105,6 +105,7 @@ $('#step3').on('click', function(event) {
 
 let activityPower;
 let activityID;
+let thisActivity;
 
 $('#step4').on('click', function(event) {
     event.preventDefault();
@@ -125,8 +126,13 @@ $('#step4').on('click', function(event) {
           let activityID = $(this).attr('id');
           console.log(activityID);
         //get power data for clicked activity
-        $.get(`https://www.strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
-      
+        thisActivity = $.get(`https://www.strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
+        if(data.hasOwnProperty('watts')) {
+        activityPower = data.watts.data;
+        console.log(data);
+        } else {
+        alert('This activity does not have power data.');
+      }
     }, 'jsonp'
     )
   })
