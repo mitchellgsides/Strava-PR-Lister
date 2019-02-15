@@ -84,8 +84,8 @@ let accessCode;
 $('#step2').on('click', function (event) {
     event.preventDefault();
     //will be replaced after auth
-    currentLocation = window.location;
-    //'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
+    currentLocation = //window.location.href;
+    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
     console.log(currentLocation);
     accessCode = currentLocation.split(/&|=/);
     console.log(accessCode[3]);
@@ -131,9 +131,10 @@ $('#step4').on('click', function(event) {
       console.log(data);
       //generate list of available rides
       for(let i = 0; i < 30; i++) {
-        $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" class="js-activity-list-item" id=${data[i].id}">${data[i].name}</a></li>`);
+        $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" class="js-activity-list-item" id=${data[i].id}>${data[i].name}</a></li>`);
         activityID = data[i].id;
         }
+        
         //get link id for power data return request
         $('.js-activity-list-item').on('click', function(event) {
           event.preventDefault();
@@ -144,6 +145,10 @@ $('#step4').on('click', function(event) {
         if(data.hasOwnProperty('watts')) {
         activityPower = data.watts.data;
         console.log(data);
+        //this is where data analysis shows up/is done
+        $(`#${activityID}`)
+        .append(`<ul><li>Average Power: ${average(activityPower)}w</li><li>${normPow(activityPower)}</li></ul>`)
+        
         } else {
         alert('This activity does not have power data.');
       }
@@ -156,8 +161,10 @@ $('#step4').on('click', function(event) {
 
 function getPowerData(activity) {};
 
-
+/*
 $('#step5').on('click', function(event) {
+    console.log('step 5 works');
     event.preventDefault();
-
+    $(`#${activityID}`).append(`<ul><li>${average(activityPower)}</li></ul>`)
 })
+*/
