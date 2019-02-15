@@ -10,3 +10,7 @@
 .power-analysis {
     color: red;
 }
+
+#js-activity-list > li {
+    border: 1px solid black;
+}

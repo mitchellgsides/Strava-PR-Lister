@@ -20,7 +20,7 @@ function average(array) {
   for(let i = 0; i < array.length; i++) {
     currentValue += array[i];
   }
-  return currentValue/array.length;
+  return Math.round(currentValue/array.length);
 }
 
 
@@ -44,7 +44,7 @@ function rollingAverage(array, seconds) {
 //so this combines the rolling average and finds the maximum value from the array in rollingaverage so that you get your single best effort of whatever duration you want. I could do 1 second, 50 seconds, all the way up to the whole ride.
 function findMax(array, seconds) {
   if(seconds > 0) {
- return Math.max(...(rollingAverage(array, seconds)));
+ return Math.round(Math.max(...(rollingAverage(array, seconds))));
   }
   console.log('Please enter an integer greater than 0 for "seconds"')
   return 'Please enter an integer greater than 0 for "seconds"'
@@ -58,7 +58,7 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
   let normArray = rollingAverage(array, 30);
   for(let i = startPoint; i < duration; i++) {
     normArray = normArray.slice(i, i + duration).map(x => x ** 4);
-    return average(normArray)**(1/4);
+    return Math.round(average(normArray)**(1/4));
   }
   return 'Cannot get Normalized Power';
 }
@@ -85,11 +85,10 @@ let accessCode;
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-  currentLocation = //window.location.href;
-    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
+  currentLocation = window.location.href;
+    //'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
     //console.log(currentLocation);
     accessCode = (currentLocation.split(/&|=/))[3];
-    console.log(accessCode);
     return accessCode;
 }
 
@@ -104,7 +103,6 @@ function collectAccessToken() {
           //console.log(data);
           accessToken = data.access_token;
           refreshToken = data.refresh_token;
-          console.log(accessToken);
           } else(
           alert('Request Error'));
         })
@@ -120,7 +118,7 @@ let authenticatedAthlete;
 function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
       authenticatedAthlete = data.id;
-      console.log(authenticatedAthlete);
+      console.log('Authenticated Athlete id ' + authenticatedAthlete);
     }, 'jsonp');
     return authenticatedAthlete;
 }
@@ -140,15 +138,13 @@ function getActivityList() {
         $('.js-activity-list-item').on('click', function(event) {
           event.preventDefault();
           let activityID = $(this).attr('id');
-          console.log(activityID);
         //get power data for clicked activity
         thisActivity = $.get(`https://www.strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
         if(data.hasOwnProperty('watts')) {
           activityPower = data.watts.data;
-          console.log(data);
           //this is where data analysis shows up/is done
           $(`#${activityID}`)
-          .append(`<ul class="power-analysis"><li>Average Power: ${average(activityPower)}w</li><li>NP: ${normPow(activityPower)}w</li><li>Best 5 minute power: ${findMax(activityPower, 300)}w</li></ul>`)
+          .append(`<ul class="power-analysis"><li>Average Power: ${average(activityPower)}w</li><li>NP: ${normPow(activityPower)}w</li><li>Best 5 minute power: ${findMax(activityPower, 300)}w</li><li>Best 20 minute power: ${findMax(activityPower, 1200)}w</li></ul>`)
         } else {
         alert('This activity does not have power data.');
       }
