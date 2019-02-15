@@ -69,66 +69,67 @@ console.log(normPow(responseObject.watts.data, 500, 600));
 /*Block for Oauth and Implementation of List Activities
 
 Below is HOW I'll grant access and then gather data for the app.
+1. Click Link ('Log into Strava')
+2. (Get Activities?) Click get rides to follow all processes (steps 2-5);
+3. Step2 .then => step3 .then step 4, .then step 5;
 
-*/
-/*currently not needed
-$('#step1').on('submit', function(event) {
-    event.preventDefault();
 
-})
+fetch(url).then()
+
+
+
 */
 //get "code" from returned URL
 let currentLocation;
 let accessCode;
 
-$('#step2').on('click', function (event) {
-    event.preventDefault();
-    //will be replaced after auth
-    currentLocation = //window.location.href;
+//returns accessCode value, used for collecting access token
+function getAccessCode() {
+  currentLocation = //window.location.href;
     'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
-    console.log(currentLocation);
-    accessCode = currentLocation.split(/&|=/);
-    console.log(accessCode[3]);
-})
+    //console.log(currentLocation);
+    accessCode = (currentLocation.split(/&|=/))[3];
+    console.log(accessCode);
+    return accessCode;
+}
+
 
 let accessToken;
 let refreshToken;
 
-$('#step3').on('click', function(event) {
-    event.preventDefault();
-    //postRequest
-    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=b7abbcd02c9483f9007218aaf47f7a0e929e9ee1&code=${accessCode[3]}&grant_type=authorization_code`, function(data, status) {
-      console.log("Data" + data + "Status: " + status);
-      console.log(data);
-      accessToken = data.access_token;
-      refreshToken = data.refresh_token;
-    })
-    return accessToken, refreshToken;
-  });
+//returns accessToken and refreshToken
+function collectAccessToken() {
+    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=b7abbcd02c9483f9007218aaf47f7a0e929e9ee1&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
+          if(status === 'success') {
+          //console.log(data);
+          accessToken = data.access_token;
+          refreshToken = data.refresh_token;
+          console.log(accessToken);
+          } else(
+          alert('Request Error'));
+        })
+        return accessToken, refreshToken;
+}
 
 let activityPower;
 let activityID;
 let thisActivity;
 let authenticatedAthlete;
-//get authenticated athlete
 
-$('#step6').on('click', function(event) {
-  event.preventDefault();
+//returns authenticated athlete
+function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
       authenticatedAthlete = data.id;
       console.log(authenticatedAthlete);
     }, 'jsonp');
-});
+    return authenticatedAthlete;
+}
 
-$('#step4').on('click', function(event) {
-    event.preventDefault();
-    
-    let activityNames = $.get(`https://www.strava.com/api/v3/athletes/${authenticatedAthlete}/activities?access_token=${accessToken}`, function(data, status) {
+
+function getActivityList() {
+  let activityNames = $.get(`https://www.strava.com/api/v3/athletes/${authenticatedAthlete}/activities?access_token=${accessToken}`, function(data, status) {
       //empty previous requests
       $('#js-activity-list').empty();
-      console.log(status);
-      console.log(data[0].name);
-      console.log(data);
       //generate list of available rides
       for(let i = 0; i < 30; i++) {
         $('#js-activity-list').append(`<li><a href="https://www.strava.com/activities/${data[i].id}/" class="js-activity-list-item" id=${data[i].id}>${data[i].name}</a></li>`);
@@ -143,28 +144,58 @@ $('#step4').on('click', function(event) {
         //get power data for clicked activity
         thisActivity = $.get(`https://www.strava.com/api/v3/activities/${activityID}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
         if(data.hasOwnProperty('watts')) {
-        activityPower = data.watts.data;
-        console.log(data);
-        //this is where data analysis shows up/is done
-        $(`#${activityID}`)
-        .append(`<ul><li>Average Power: ${average(activityPower)}w</li><li>${normPow(activityPower)}</li></ul>`)
-        
+          activityPower = data.watts.data;
+          console.log(data);
+          //this is where data analysis shows up/is done
+          $(`#${activityID}`)
+          .append(`<ul class="power-analysis"><li>Average Power: ${average(activityPower)}w</li><li>NP: ${normPow(activityPower)}w</li><li>Best 5 minute power: ${findMax(activityPower, 300)}w</li></ul>`)
         } else {
         alert('This activity does not have power data.');
       }
-    }, 'jsonp'
+        }, 'jsonp'
     )
   })
     } , 'jsonp');
-})
+  
+}
 
-
-function getPowerData(activity) {};
-
-/*
 $('#step5').on('click', function(event) {
-    console.log('step 5 works');
     event.preventDefault();
-    $(`#${activityID}`).append(`<ul><li>${average(activityPower)}</li></ul>`)
+    getActivityList();
 })
-*/
+
+
+let step2 = function() {
+   let promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('step 2 completed');
+         resolve(getAccessCode());
+      }, 500);
+   });
+   return promise;
+};
+ 
+ 
+let step3 = function(someStuff) {
+   let promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('step 3 completed');
+         resolve(collectAccessToken());
+      }, 500);
+   });
+   return promise;
+};
+ 
+let step4 = function(someStuff) {
+   let promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         console.log('step 4 completed');
+         resolve(getAuthenticatedAthlete());
+      }, 500);
+   });
+   return promise;
+};
+
+//run authentication
+step2().then(step3).then(step4)
+
