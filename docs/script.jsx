@@ -63,8 +63,8 @@ let accessCode;
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-  currentLocation = window.location.href;
-    //'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
+  currentLocation = //window.location.href;
+    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
     //console.log(currentLocation);
     accessCode = (currentLocation.split(/&|=/))[3];
     return accessCode;
