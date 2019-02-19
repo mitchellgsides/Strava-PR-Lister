@@ -1,5 +1,62 @@
 'use strict'
 
+/*
+let activityArray = [
+  {
+    name: '20 Decent Minutes',
+    rideData: {
+      distance: {
+        data: []
+      },
+      watts: {
+        data: [100, 100, 100, 100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100, 100 ]
+      }
+    }
+  },
+ {
+    name: 'Pre-20min Openers/Fun Ride',
+    rideData: {
+      distance: {
+        data: []
+      },
+      watts: {
+        data: [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,]
+      }
+    }
+  },
+  {
+    name: 'Intervals! With Some sprints!',
+    rideData: {
+      distance: {
+        data: []
+      },
+      watts: {
+        data: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
+      }
+    }
+  },
+  {
+    name: 'Test Run',
+    rideData: {
+      distance: {
+        data: []
+      },
+    }
+  },
+  {
+    name: 'Test Ride',
+    rideData: {
+      distance: {
+        data: []
+      },
+      watts: {
+        data: [300, 300, 300, 300, 500, 300, 300, 300, 500, 300, 300, 300, 300, 300, 300, 500, 300, 500, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
+      }
+    }
+  }
+];
+*/
+
 //get "code" from returned URL
 let currentLocation;
 let accessCode;
@@ -161,6 +218,7 @@ $('#js-show-power').on('click', function(event) {
 function renderPage() {
 $('#js-show-power').on('click', function(event) {
   event.preventDefault();
+  $('#js-activity-list').css('display', 'block');
   $('#js-activity-list').empty();
   $('.power-analysis-list').empty();
   $('#js-show-power').text('Reset');
@@ -200,6 +258,8 @@ function showPowerAnalysis() {
   })
 };
 
+
+//newPowerAnalysis Feature in progress
 function newPowerAnalysis() {
 $('.new-power-data').on('submit', function(event) {
   event.preventDefault();
@@ -210,5 +270,3 @@ $('.new-power-data').on('submit', function(event) {
   $(this).closest('ul li').append(`<li>${`Best ${duration}s Power: ${newDataPoint}w`}</li>`)
 })
 };
-
-//feature "newPowerAnalysis" removed for now

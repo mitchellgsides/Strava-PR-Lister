@@ -1,16 +1,23 @@
 * {
     padding: 7px;
     list-style-type: none;
+    border: none;
+    text-align: left;
 }
 
-* a {
-    text-decoration: none;
+main {
+    padding: 0px;
 }
 
-.power-analysis {
-    color: red;
+a {
+    text-decoration: aquamarine;
 }
 
-#js-activity-list > li {
-    border: 1px solid black;
+ul {
+    border: 1px solid springgreen;
 }
+
+#js-activity-list {
+    display: none;
+}
+
