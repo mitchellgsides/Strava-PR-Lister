@@ -221,7 +221,7 @@ $('#js-show-power').on('click', function(event) {
   $('#js-activity-list').css('display', 'block');
   $('#js-activity-list').empty();
   $('.power-analysis-list').empty();
-  $('#js-show-power').text('Reset');
+  $('#js-show-power').html('<span>Reset</span>');
   for(let i = 0; i < activityArray.length; i++) {
     $('#js-activity-list').append(`
       <li class='individual-activity'>
@@ -237,7 +237,7 @@ $('#js-show-power').on('click', function(event) {
       <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 5)}w</li>
       </li>`
     );
-  } $(`#${i}`).append('No Power Data Available');
+  } else {`#${i}`.append('No Power Data Available')}
 }
   //newPowerAnalysis();
   showPowerAnalysis();
