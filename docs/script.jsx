@@ -237,7 +237,7 @@ $('#js-show-power').on('click', function(event) {
       <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 5)}w</li>
       </li>`
     );
-  } else {`#${i}`.append('No Power Data Available')}
+  } else {$(`#${i}`).append('No Power Data Available')}
 }
   //newPowerAnalysis();
   showPowerAnalysis();
