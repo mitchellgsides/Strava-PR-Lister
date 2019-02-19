@@ -224,8 +224,7 @@ $('#js-show-power').on('click', function(event) {
   $('#js-show-power').text('Reset');
   for(let i = 0; i < activityArray.length; i++) {
     $('#js-activity-list').append(`
-      <li>
-          <ul>
+      <li class='individual-activity'>
             <a class="title">${activityArray[i].name}</a>
             <ul id='${i}' class="power-analysis-list">`
             );
@@ -235,15 +234,16 @@ $('#js-show-power').on('click', function(event) {
     $(`#${i}`).append(
       `<li class="average-power-item">Average Power: ${average(activityArray[anId].rideData.watts.data)}w </li>
       <li class="normalized-power-item">Normalized Power: ${normPow(activityArray[anId].rideData.watts.data)}w </li>
-      <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
-      `//<li><form class="new-power-data"><input type="number"><span>Duration</span><button type="submit" ><span>Add Power</span></form></li></ul></li>`
-    )
-  }
+      <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 5)}w</li>
+      </li>`
+    );
+  } $(`#${i}`).append('No Power Data Available');
 }
   //newPowerAnalysis();
   showPowerAnalysis();
 })
 };
+
 $(renderPage);
 
 $('#power-data-button').on('click', function(event) {
@@ -254,6 +254,7 @@ $('#power-data-button').on('click', function(event) {
 function showPowerAnalysis() {
   $('#js-activity-list > li a').on("click", function(event) {
     event.preventDefault();
+    $('#js-show-power').text('Reset');
     $(this).parent().find('ul').toggle();
   })
 };

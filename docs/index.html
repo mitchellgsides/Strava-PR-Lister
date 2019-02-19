@@ -16,18 +16,19 @@
 </header>
 <main>
     <p id="your-name"></p>
-    <button id="step1" type="submit"><a href="https://www.strava.com/oauth/authorize/?client_id=32540&response_type=code&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write&redirect_uri=https://mitchellgsides.github.io/Strava-PR-Lister/">Authorize Strava Access</a></button>
+    <button id="step1" type="submit"><a href="https://www.strava.com/oauth/authorize/?client_id=32540&amp;response_type=code&amp;scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write&amp;redirect_uri=https://mitchellgsides.github.io/Strava-PR-Lister/">Authorize Strava Access</a></button>
+    <button type="submit" id="js-show-power">Show Power Data</button>
+    <section class="data-list">
+        <h2>Activities</h2>
+        <ul id="js-activity-list" style="display: block;">
+        </ul>
+    </section>
 </main>
-
-<section class="data-list"></section>
-     <button type="submit" id="js-show-power">Show Data</button>
-     <ul id="js-activity-list"></ul>
-</section>
-
 <footer>
 
 </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="script.jsx"></script>
+
 </body>
 </html>
