@@ -73,9 +73,7 @@ let step2 = function() {
  
 let step3 = function() {
    let promise = new Promise(function(resolve, reject){
-      setTimeout(function() {
          resolve(collectAccessToken());
-      }, 1000);
    });
    return promise;
 };
@@ -84,7 +82,7 @@ let step4 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(getAuthenticatedAthlete());
-      }, 1000);
+      }, 300);
    });
    return promise;
 };
@@ -93,7 +91,7 @@ let step5 = function() {
    let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
          resolve(getActivityList());
-      }, 1000);
+      }, 500);
    });
    return promise;
 };
@@ -102,7 +100,7 @@ let step6 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(addActivityData());
-      }, 1000);
+      }, 800);
    });
    return promise;
 };
