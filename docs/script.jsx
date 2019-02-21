@@ -10,12 +10,14 @@ function getAccessCode() {
     'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
     //console.log(currentLocation);
     accessCode = (currentLocation.split(/&|=/))[3];
+    console.log('Access Code Retrieved');
     return accessCode;
 }
 
 let accessToken;
 let refreshToken;
-const client_secret = 'b7abbcd02c9483f9007218aaf47f7a0e929e9ee1'
+const client_secret = 'b7abbcd02c9483f9007218aaf47f7a0e929e9ee1';
+
 //returns accessToken and refreshToken
 function collectAccessToken() {
     $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=${client_secret}&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
@@ -26,6 +28,7 @@ function collectAccessToken() {
           } else(
           alert('Request Error'));
         })
+        console.log('Access Token Retrieved');
         return accessToken, refreshToken;
 }
 let activityPower;
@@ -37,6 +40,7 @@ function getAuthenticatedAthlete() {
       authenticatedAthlete = data.id;
       console.log('Authenticated Athlete id ' + authenticatedAthlete);
     }, 'jsonp');
+    console.log('Authenticated Athlete Found');
     return authenticatedAthlete;
 }
 
@@ -54,15 +58,14 @@ function addActivityData() {
           activityArray[i].rideData = data;
           }, 'jsonp');
         }
+        console.log('activityArray Created');
+        alert('Data Loaded. Select "Show Data" to see activities.');
  }
 
 
 let step2 = function() {
    let promise = new Promise(function(resolve, reject){
-      setTimeout(function() {
-         console.log('Access Code Retrieved');
          resolve(getAccessCode());
-      }, 1000);
    });
    return promise;
 };
@@ -71,7 +74,6 @@ let step2 = function() {
 let step3 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
-         console.log('Access Token Retrieved');
          resolve(collectAccessToken());
       }, 1000);
    });
@@ -81,7 +83,6 @@ let step3 = function() {
 let step4 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
-         console.log('Authenticated Athlete Found');
          resolve(getAuthenticatedAthlete());
       }, 1000);
    });
@@ -92,7 +93,6 @@ let step5 = function() {
    let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
          resolve(getActivityList());
-         console.log('activityArray Created');
       }, 1000);
    });
    return promise;
@@ -101,7 +101,6 @@ let step5 = function() {
 let step6 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
-         alert('Data Loaded. Select "Show Data" to see activities.');
          resolve(addActivityData());
       }, 1000);
    });
