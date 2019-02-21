@@ -19,22 +19,6 @@ html, body {
     color: inherit;
 }
 
-html {
-    width: 100vw;
-    background-image: url('../images-etc/wallpaper-1de3c9.jpg');
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-}
-
-.background-transparency {
-    width: 100vw;
-    background-color: rgba(0, 0, 0, 0.75);
-    background-attachment: fixed;
-    overflow-x: scroll;
-    overflow-y: scroll;
-    background-repeat: no-repeat;
-}
-
 header {
     padding: 10px;
     background-color: darkred;

@@ -109,6 +109,10 @@ let step6 = function() {
 //run authentication
 step2().then(step3).then(step4).then(step5).then(step6);
 
+
+
+//UNCOMMENT ABOVE HERE 
+
 const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 3600, 5400];
 
 function createPowDurCurve(array, time) {
@@ -164,9 +168,6 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
   return 'Cannot get Normalized Power';
 };
 
-renderPage();
-
-
 function renderPage() {
   $('#js-show-power').on('click', function(event) {
   $('#js-activity-list').css('display', 'block');
@@ -179,8 +180,8 @@ function renderPage() {
         <a class="title">${activityArray[i].name}</a>
         <ul class='act-stats title'>
           <li>${activityArray[i].start_date}</li>
-          <li>${activityArray[i].distance}</li>
-          <li>${activityArray[i].moving_time}</li>
+          <li>${mToMi(activityArray[i].distance)}</li>
+          <li>${toHHMMSS(activityArray[i].moving_time)}miles</li>
         </ul>
         <ul id='${i}' class="power-analysis-list"></ul>
       </li>`
@@ -197,10 +198,13 @@ function renderPage() {
 }
   //newPowerAnalysis();
   showPowerAnalysis();
+  chartData();
+  createChart();
   $('.power-analysis-list').css('display', 'none');
 }
   )}
-$(renderPage);
+
+  
 
 
 $('#power-data-button').on('click', function(event) {
@@ -215,6 +219,20 @@ function showPowerAnalysis() {
   })
 };
 
+let toHHMMSS = (secs) => {
+    let sec_num = parseInt(secs, 10)    
+    let hours   = Math.floor(sec_num / 3600) % 24
+    let minutes = Math.floor(sec_num / 60) % 60
+    let seconds = sec_num % 60    
+    return [hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        .filter((v,i) => v !== "00" || i > 0)
+        .join(":")
+}
+
+function mToMi(meters) {
+  return (meters * 0.00062137).toFixed(1) + ' miles';
+}
 
 /*
 function newPowerAnalysis() {
@@ -229,84 +247,129 @@ $('.new-power-data').on('submit', function(event) {
 };
 */
 
+function chartData() {
+  for(let i = 0; i < activityArray.length; i++) {
+    if(activityArray[i].rideData.hasOwnProperty('watts')) {
+      activityArray[i].dataset = {
+        label: activityArray[i].name,
+        backgroundColor: 'rgb(0, 0, 0)',
+        borderColor: 'rgb(0, 0, 0)',
+        fill: false,
+        data: createPowDurCurve(activityArray[i].rideData.watts.data, timeArr),
+      }
+    } else {console.log('no power data')}
+  }
+}
 
-//CHARTS.JS!!!
-/*
+let chartDataset = [];
+
+function createChartDataset() {
+  for(let i = 0; i < activityArray.length - 2; i++) {
+    if(activityArray[i].rideData.hasOwnProperty('watts')) {
+    chartDataset.push(activityArray[i].dataset)
+    } 
+  } return chartDataset;
+}
+
+let dataset = [];
+
+function createChart() {
+   let promise = new Promise(function(resolve, reject){
+         resolve(findDataset());
+   });
+   return promise;
+};
+
+renderThePage().then(createChart());
+
+function renderThePage() {
+  let promise = new Promise(function(resolve, reject) {
+    resolve(renderPage());
+  })
+  return promise;
+}
+
+function findDataset() {
+  $('.title').on('click', function(event) {
+    event.preventDefault();
+    let value = activityArray[$(this).parent().find('.power-analysis-list').attr('id')].dataset;
+    toggleArrayItem(dataset, value);
+    makeDisChart(disNewChart);
+  })
+}
+
+
+
+function toggleArrayItem(array, value) {
+  let i = array.indexOf(value);
+  if(i === -1) {
+    array.push(value);}
+  else {
+    array.splice(i, 1);
+  }
+}
+
 let disNewChart = document.getElementById('power-comparison-chart').getContext('2d');
-makeDisChart(disNewChart);
+
+
+function secondstotime(secs)
+{
+    var t = new Date(1970,0,1);
+    t.setSeconds(secs);
+    var s = t.toTimeString().substr(0,8);
+    if(secs > 86399)
+        s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
+    return s;
+}
+
+function pdFormatting(secs) {
+  if(secs >= 60) {
+    return secs/60 + 'min';
+  }
+return secs + 's';
+};
+
 
 function makeDisChart(theContext) {
-  disNewChart.width = '80vw';
-  disNewChart.height = .67 * disNewChart.width;
+  Chart.defaults.global.animation = false;
+  let chart = new Chart(theContext, {
+      // The type of chart we want to create
+      type: 'line',
 
-let chart = new Chart(theContext, {
-    // The type of chart we want to create
-    type: 'line',
+      // The data for our dataset
+      data: {
+          labels: timeArr.map(x => pdFormatting(x)),
+          datasets: dataset
+      },
+      // Configuration options go here
+      options: {
+        responsive: 'true',
+        scales: {
+          gridlines: {
+            display: true,
+          },
+          xAxes: [{
+            ticks: {
+              min: 0,
+            },
+            scaleLabel: {
+              display: true
+            },
+            ticks: {
+              beginAtZero: true,
+            }
+          }], 
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              stepSize: 120,
+            },
+          }],
+        }
 
-    // The data for our dataset
-    data: {
-        labels: timeArr,
-        datasets: [{
-            label: activityArray[5].name,
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            fill: false,
-            //data: [0, 1, 2, 3, 4, 5, 6, 7]
-            data: createPowDurCurve(activityArray[5].rideData.watts.data, timeArr),
-            //data: createPowDurCurve(activityArray[2].rideData.watts.data, timeArr)
-        },
-        {
-            label: activityArray[2].name,
-            backgroundColor: 'rgb(0, 99, 132)',
-            borderColor: 'rgb(0, 99, 132)',
-            fill: false,
-            //data: [0, 1, 2, 3, 4, 5, 6, 7]
-            data: createPowDurCurve(activityArray[2].rideData.watts.data, timeArr),
-        },
-      {
-            label: activityArray[1].name,
-            backgroundColor: 'rgb(0, 0, 132)',
-            borderColor: 'rgb(0, 0, 132)',
-            fill: false,
-            //data: [0, 1, 2, 3, 4, 5, 6, 7]
-            data: createPowDurCurve(activityArray[1].rideData.watts.data, timeArr),
-        },
-      {
-            label: activityArray[0].name,
-            backgroundColor: 'rgb(0, 99, 132)',
-            borderColor: 'rgb(0, 99, 132)',
-            fill: false,
-            //data: [0, 1, 2, 3, 4, 5, 6, 7]
-            data: createPowDurCurve(activityArray[0].rideData.watts.data, timeArr),
-        }]
-    },
-    // Configuration options go here
-    options: {
-      responsive: 'true',
-      scales: {
-        gridlines: {
-          display: true,
-        },
-        xAxes: [{
-          ticks: {
-            min: 0,
-          },
-          scaleLabel: {
-            display: true
-          },
-          ticks: {
-            beginAtZero: true,
-          }
-        }], 
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            stepSize: 50,
-          },
-        }],
       }
-
-    }
-});
+  });
 }
-*/
+
+
+
