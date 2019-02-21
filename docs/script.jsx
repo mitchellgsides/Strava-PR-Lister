@@ -1,62 +1,5 @@
 'use strict'
 
-/*
-let activityArray = [
-  {
-    name: '20 Decent Minutes',
-    rideData: {
-      distance: {
-        data: []
-      },
-      watts: {
-        data: [100, 100, 100, 100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,100, 100, 100,100, 100, 100, 100, 100, 100,100, 100, 100, 100 ]
-      }
-    }
-  },
- {
-    name: 'Pre-20min Openers/Fun Ride',
-    rideData: {
-      distance: {
-        data: []
-      },
-      watts: {
-        data: [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200,]
-      }
-    }
-  },
-  {
-    name: 'Intervals! With Some sprints!',
-    rideData: {
-      distance: {
-        data: []
-      },
-      watts: {
-        data: [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
-      }
-    }
-  },
-  {
-    name: 'Test Run',
-    rideData: {
-      distance: {
-        data: []
-      },
-    }
-  },
-  {
-    name: 'Test Ride',
-    rideData: {
-      distance: {
-        data: []
-      },
-      watts: {
-        data: [300, 300, 300, 300, 500, 300, 300, 300, 500, 300, 300, 300, 300, 300, 300, 500, 300, 500, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
-      }
-    }
-  }
-];
-*/
-
 //get "code" from returned URL
 let currentLocation;
 let accessCode;
@@ -72,9 +15,10 @@ function getAccessCode() {
 
 let accessToken;
 let refreshToken;
+const client_secret = 'b7abbcd02c9483f9007218aaf47f7a0e929e9ee1'
 //returns accessToken and refreshToken
 function collectAccessToken() {
-    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=b7abbcd02c9483f9007218aaf47f7a0e929e9ee1&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
+    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=${client_secret}&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
           if(status === 'success') {
           //console.log(data);
           accessToken = data.access_token;
@@ -95,12 +39,14 @@ function getAuthenticatedAthlete() {
     }, 'jsonp');
     return authenticatedAthlete;
 }
+
 //creates activityArray
 function getActivityList() {
   $.get(`https://www.strava.com/api/v3/athletes/${authenticatedAthlete}/activities?access_token=${accessToken}`, function(data, status) {
       activityArray = data;
    }, 'jsonp');
 }
+
 function addActivityData() {
   for(let i = 0; i < activityArray.length; i++) {
           let id = activityArray[i].id;
@@ -143,7 +89,7 @@ let step4 = function() {
 };
 
 let step5 = function() {
-   let promise = new Promise(function(resolve, reject){
+   let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
          resolve(getActivityList());
          console.log('activityArray Created');
@@ -165,6 +111,18 @@ let step6 = function() {
 
 //run authentication
 step2().then(step3).then(step4).then(step5).then(step6);
+
+const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 3600, 5400];
+
+function createPowDurCurve(array, time) {
+  let powArr = [];
+  
+  for(let i = 0; i < time.length; i++) {
+  powArr.push(maxOfDuration(array, time[i]));
+    
+  }
+  return powArr;
+}
 
 function maxPower(array) {
     return Math.max(...array);
@@ -209,15 +167,11 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
   return 'Cannot get Normalized Power';
 };
 
+renderPage();
 
-$('#js-show-power').on('click', function(event) {
-  event.preventDefault();
-  renderPage();
-})
 
 function renderPage() {
-$('#js-show-power').on('click', function(event) {
-  event.preventDefault();
+  $('#js-show-power').on('click', function(event) {
   $('#js-activity-list').css('display', 'block');
   $('#js-activity-list').empty();
   $('.power-analysis-list').empty();
@@ -225,26 +179,32 @@ $('#js-show-power').on('click', function(event) {
   for(let i = 0; i < activityArray.length; i++) {
     $('#js-activity-list').append(`
       <li class='individual-activity'>
-            <a class="title">${activityArray[i].name}</a>
-            <ul id='${i}' class="power-analysis-list">`
+        <a class="title">${activityArray[i].name}</a>
+        <ul class='act-stats title'>
+          <li>${activityArray[i].start_date}</li>
+          <li>${activityArray[i].distance}</li>
+          <li>${activityArray[i].moving_time}</li>
+        </ul>
+        <ul id='${i}' class="power-analysis-list"></ul>
+      </li>`
             );
-        $('.power-analysis-list').css('display', 'none');
   let anId = i;
   if(activityArray[i].rideData.hasOwnProperty('watts')) {
     $(`#${i}`).append(
       `<li class="average-power-item">Average Power: ${average(activityArray[anId].rideData.watts.data)}w </li>
       <li class="normalized-power-item">Normalized Power: ${normPow(activityArray[anId].rideData.watts.data)}w </li>
-      <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 5)}w</li>
+      <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
       </li>`
     );
   } else {$(`#${i}`).append('No Power Data Available')}
 }
   //newPowerAnalysis();
   showPowerAnalysis();
-})
-};
-
+  $('.power-analysis-list').css('display', 'none');
+}
+  )}
 $(renderPage);
+
 
 $('#power-data-button').on('click', function(event) {
   event.preventDefault();
@@ -252,15 +212,14 @@ $('#power-data-button').on('click', function(event) {
 })
 
 function showPowerAnalysis() {
-  $('#js-activity-list > li a').on("click", function(event) {
+  $('.title').on("click", function(event) {
     event.preventDefault();
-    $('#js-show-power').text('Reset');
-    $(this).parent().find('ul').toggle();
+    $(this).parent().find('.power-analysis-list').toggle();
   })
 };
 
 
-//newPowerAnalysis Feature in progress
+/*
 function newPowerAnalysis() {
 $('.new-power-data').on('submit', function(event) {
   event.preventDefault();
@@ -271,3 +230,86 @@ $('.new-power-data').on('submit', function(event) {
   $(this).closest('ul li').append(`<li>${`Best ${duration}s Power: ${newDataPoint}w`}</li>`)
 })
 };
+*/
+
+
+//CHARTS.JS!!!
+/*
+let disNewChart = document.getElementById('power-comparison-chart').getContext('2d');
+makeDisChart(disNewChart);
+
+function makeDisChart(theContext) {
+  disNewChart.width = '80vw';
+  disNewChart.height = .67 * disNewChart.width;
+
+let chart = new Chart(theContext, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: timeArr,
+        datasets: [{
+            label: activityArray[5].name,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            fill: false,
+            //data: [0, 1, 2, 3, 4, 5, 6, 7]
+            data: createPowDurCurve(activityArray[5].rideData.watts.data, timeArr),
+            //data: createPowDurCurve(activityArray[2].rideData.watts.data, timeArr)
+        },
+        {
+            label: activityArray[2].name,
+            backgroundColor: 'rgb(0, 99, 132)',
+            borderColor: 'rgb(0, 99, 132)',
+            fill: false,
+            //data: [0, 1, 2, 3, 4, 5, 6, 7]
+            data: createPowDurCurve(activityArray[2].rideData.watts.data, timeArr),
+        },
+      {
+            label: activityArray[1].name,
+            backgroundColor: 'rgb(0, 0, 132)',
+            borderColor: 'rgb(0, 0, 132)',
+            fill: false,
+            //data: [0, 1, 2, 3, 4, 5, 6, 7]
+            data: createPowDurCurve(activityArray[1].rideData.watts.data, timeArr),
+        },
+      {
+            label: activityArray[0].name,
+            backgroundColor: 'rgb(0, 99, 132)',
+            borderColor: 'rgb(0, 99, 132)',
+            fill: false,
+            //data: [0, 1, 2, 3, 4, 5, 6, 7]
+            data: createPowDurCurve(activityArray[0].rideData.watts.data, timeArr),
+        }]
+    },
+    // Configuration options go here
+    options: {
+      responsive: 'true',
+      scales: {
+        gridlines: {
+          display: true,
+        },
+        xAxes: [{
+          ticks: {
+            min: 0,
+          },
+          scaleLabel: {
+            display: true
+          },
+          ticks: {
+            beginAtZero: true,
+          }
+        }], 
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 50,
+          },
+        }],
+      }
+
+    }
+});
+}
+*/
