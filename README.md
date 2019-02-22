@@ -1,4 +1,7 @@
 # Strava-PR-Lister
+
+live demo: https://mitchellgsides.github.io/Strava-PR-Lister/
+
 This app will allow users to find their power PRs based on Strava power data.
 
 Step 1: Authenticate User with Strava (currently, there's a demo profile available)
