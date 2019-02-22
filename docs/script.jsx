@@ -72,6 +72,7 @@ let step2 = function() {
 };
  
  
+ 
 let step3 = function() {
    let promise = new Promise(function(resolve, reject){
          resolve(collectAccessToken());
@@ -83,7 +84,7 @@ let step4 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(getAuthenticatedAthlete());
-      }, 300);
+      }, 400);
    });
    return promise;
 };
@@ -92,7 +93,7 @@ let step5 = function() {
    let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
          resolve(getActivityList());
-      }, 500);
+      }, 600);
    });
    return promise;
 };
@@ -101,15 +102,14 @@ let step6 = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(addActivityData());
-      }, 800);
+      }, 900);
    });
    return promise;
 };
 
 
 //run authentication
-//step2().then(step3).then(step4).then(step5).then(step6);
-
+step2().then(step3).then(step4).then(step5).then(step6);
 
 
 //UNCOMMENT ABOVE HERE 
@@ -180,9 +180,9 @@ function renderPage() {
         <li class='individual-activity'>
           <a class="title">${activityArray[i].name}</a>
           <ul class='act-stats title'>
-            <li>${activityArray[i].start_date}</li>
-            <li>${mToMi(activityArray[i].distance)}</li>
-            <li>${toHHMMSS(activityArray[i].moving_time)}miles</li>
+            <li>Date: ${dateFormat(activityArray[i].start_date)}</li>
+            <li>Distance: ${mToMi(activityArray[i].distance)}</li>
+            <li>Moving Time: ${toHHMMSS(activityArray[i].moving_time)}</li>
           </ul>
           <ul id='${i}' class="power-analysis-list"></ul>
         </li>`
@@ -210,9 +210,14 @@ $('#power-data-button').on('click', function(event) {
   powerAnalyze();
 })
 
+//remove disNewChart on click, but makeDisChart inserts it... 
+const canvas = document.getElementById('power-comparison-chart');
+let disNewChart = canvas.getContext('2d');
+
 function showPowerAnalysis() {
   $('.title').on("click", function(event) {
     event.preventDefault();
+    
     $(this).parent().find('.power-analysis-list').toggle();
     chartDataset = [];
     let actArrIndex = $(this).parent().find('.power-analysis-list').attr('id');
@@ -241,6 +246,16 @@ let toHHMMSS = (secs) => {
 
 function mToMi(meters) {
   return (meters * 0.00062137).toFixed(1) + ' miles';
+}
+
+function dateFormat(date) {
+  let d = new Date(date);
+  let month = d.getMonth();
+  let monthArr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  let day = d.getDate();
+  let year = d.getFullYear();
+
+  return `${monthArr[month]} ${day}, ${year}`;
 }
 
 /* Feature on hold now
@@ -306,46 +321,53 @@ function toggleArrayItem(array, value) {
 
 let chartDataset =[];
 
-
-
-
-let disNewChart = document.getElementById('power-comparison-chart').getContext('2d');
-
 function makeDisChart(theContext) {
-let chart = new Chart(theContext, {
-    // The type of chart we want to create
-    type: 'line',
-    // The data for our dataset
-    data: {
-        labels: timeArr,
-        datasets: chartDataset,
-    },
-    // Configuration options go here
-    options: {
-      responsive: 'true',
-      scales: {
-        gridlines: {
-          display: true,
+  let chart = new Chart(theContext, {
+      // The type of chart we want to create
+      type: 'line',
+      // The data for our dataset
+      data: {
+          labels: timeArr,
+          datasets: chartDataset,
+      },
+      // Configuration options go here
+      options: {
+        elements: {
+          line: {
+            tension: 0.2,
+          },
         },
-        xAxes: [{
-          ticks: {
-            min: 0,
+        animation: {
+          duration: 0,
+        },
+        hover: {
+          animationDuration: 0,
+        },
+        responsiveAnimationDuration: 0,
+        responsive: 'true',
+        scales: {
+          gridlines: {
+            display: true,
           },
-          scaleLabel: {
-            display: true
-          },
-          ticks: {
-            beginAtZero: true,
-          }
-        }], 
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            stepSize: 120,
-          },
-        }],
-      }
+          xAxes: [{
+            ticks: {
+              min: 0,
+            },
+            scaleLabel: {
+              display: true
+            },
+            ticks: {
+              beginAtZero: true,
+            }
+          }], 
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              stepSize: 120,
+            },
+          }],
+        }
 
-    }
-});
+      }
+  });
 }
