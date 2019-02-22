@@ -219,6 +219,7 @@ function showPowerAnalysis() {
     event.preventDefault();
     
     $(this).parent().find('.power-analysis-list').toggle();
+    //clears Dataset
     chartDataset = [];
     let actArrIndex = $(this).parent().find('.power-analysis-list').attr('id');
     let value = {
