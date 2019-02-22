@@ -59,7 +59,8 @@ function addActivityData() {
           }, 'jsonp');
         }
         console.log('activityArray Created');
-        alert('Data Loaded. Select "Show Data" to see activities.');
+        $('#load-msg').html('Data Loaded. Click "Show Data" to see your activities');
+        alert('Data Loaded. Click "Show Data" to see activities.');
  }
 
 
@@ -107,7 +108,7 @@ let step6 = function() {
 
 
 //run authentication
-step2().then(step3).then(step4).then(step5).then(step6);
+//step2().then(step3).then(step4).then(step5).then(step6);
 
 
 
@@ -117,7 +118,6 @@ const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 
 
 function createPowDurCurve(array, time) {
   let powArr = [];
-  
   for(let i = 0; i < time.length; i++) {
   powArr.push(maxOfDuration(array, time[i]));
     
@@ -170,42 +170,40 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
 
 function renderPage() {
   $('#js-show-power').on('click', function(event) {
-  $('#js-activity-list').css('display', 'block');
-  $('#js-activity-list').empty();
-  $('.power-analysis-list').empty();
-  $('#js-show-power').html('<span>Reset</span>');
-  for(let i = 0; i < activityArray.length; i++) {
-    $('#js-activity-list').append(`
-      <li class='individual-activity'>
-        <a class="title">${activityArray[i].name}</a>
-        <ul class='act-stats title'>
-          <li>${activityArray[i].start_date}</li>
-          <li>${mToMi(activityArray[i].distance)}</li>
-          <li>${toHHMMSS(activityArray[i].moving_time)}miles</li>
-        </ul>
-        <ul id='${i}' class="power-analysis-list"></ul>
-      </li>`
-            );
-  let anId = i;
-  if(activityArray[i].rideData.hasOwnProperty('watts')) {
-    $(`#${i}`).append(
-      `<li class="average-power-item">Average Power: ${average(activityArray[anId].rideData.watts.data)}w </li>
-      <li class="normalized-power-item">Normalized Power: ${normPow(activityArray[anId].rideData.watts.data)}w </li>
-      <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
-      </li>`
-    );
-  } else {$(`#${i}`).append('No Power Data Available')}
-}
-  //newPowerAnalysis();
-  showPowerAnalysis();
-  chartData();
-  createChart();
-  $('.power-analysis-list').css('display', 'none');
-}
-  )}
+    $('#load-msg').remove();
+    $('#js-activity-list').css('display', 'block');
+    $('#js-activity-list').empty();
+    $('.power-analysis-list').empty();
+    $('#js-show-power').html('<span>Reset</span>');
+    for(let i = 0; i < activityArray.length; i++) {
+      $('#js-activity-list').append(`
+        <li class='individual-activity'>
+          <a class="title">${activityArray[i].name}</a>
+          <ul class='act-stats title'>
+            <li>${activityArray[i].start_date}</li>
+            <li>${mToMi(activityArray[i].distance)}</li>
+            <li>${toHHMMSS(activityArray[i].moving_time)}miles</li>
+          </ul>
+          <ul id='${i}' class="power-analysis-list"></ul>
+        </li>`
+              );
+    let anId = i;
+    if(activityArray[i].rideData.hasOwnProperty('watts')) {
+      $(`#${i}`).append(
+        `<li class="average-power-item">Average Power: ${average(activityArray[anId].rideData.watts.data)}w </li>
+        <li class="normalized-power-item">Normalized Power: ${normPow(activityArray[anId].rideData.watts.data)}w </li>
+        <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
+        </li>`
+      );
+    } else {$(`#${i}`).append('No Power Data Available')}
+  }
+    //newPowerAnalysis();
+    showPowerAnalysis();
+    $('.power-analysis-list').css('display', 'none');
+    }
+)}
 
-  
-
+renderPage();
 
 $('#power-data-button').on('click', function(event) {
   event.preventDefault();
@@ -216,6 +214,17 @@ function showPowerAnalysis() {
   $('.title').on("click", function(event) {
     event.preventDefault();
     $(this).parent().find('.power-analysis-list').toggle();
+    chartDataset = [];
+    let actArrIndex = $(this).parent().find('.power-analysis-list').attr('id');
+    let value = {
+      label: activityArray[actArrIndex].name,
+      backgroundColor: 'rgb(0, 0, 0, 0.8)',
+      borderColor: 'rgb(0, 0, 0, 0.8)',
+      fill: false,
+      data: createPowDurCurve(activityArray[actArrIndex].rideData.watts.data, timeArr)
+    };
+    toggleArrayItem(chartDataset, value);
+    makeDisChart(disNewChart);
   })
 };
 
@@ -234,7 +243,9 @@ function mToMi(meters) {
   return (meters * 0.00062137).toFixed(1) + ' miles';
 }
 
-/*
+/* Feature on hold now
+
+
 function newPowerAnalysis() {
 $('.new-power-data').on('submit', function(event) {
   event.preventDefault();
@@ -247,6 +258,7 @@ $('.new-power-data').on('submit', function(event) {
 };
 */
 
+/* Chart for Individual Rides Tabled For Now
 function chartData() {
   for(let i = 0; i < activityArray.length; i++) {
     if(activityArray[i].rideData.hasOwnProperty('watts')) {
@@ -260,45 +272,28 @@ function chartData() {
     } else {console.log('no power data')}
   }
 }
+*/
 
-let chartDataset = [];
 
-function createChartDataset() {
-  for(let i = 0; i < activityArray.length - 2; i++) {
-    if(activityArray[i].rideData.hasOwnProperty('watts')) {
-    chartDataset.push(activityArray[i].dataset)
-    } 
-  } return chartDataset;
+// format for activity duration
+function secondstotime(secs) {
+    var t = new Date(1970,0,1);
+    t.setSeconds(secs);
+    var s = t.toTimeString().substr(0,8);
+    if(secs > 86399)
+        s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
+    return s;
 }
 
-let dataset = [];
-
-function createChart() {
-   let promise = new Promise(function(resolve, reject){
-         resolve(findDataset());
-   });
-   return promise;
+//power duration curve label format
+function pdFormatting(secs) {
+  if(secs >= 60) {
+    return secs/60 + 'min';
+  }
+return secs + 's';
 };
 
-renderThePage().then(createChart());
-
-function renderThePage() {
-  let promise = new Promise(function(resolve, reject) {
-    resolve(renderPage());
-  })
-  return promise;
-}
-
-function findDataset() {
-  $('.title').on('click', function(event) {
-    event.preventDefault();
-    let value = activityArray[$(this).parent().find('.power-analysis-list').attr('id')].dataset;
-    toggleArrayItem(dataset, value);
-    makeDisChart(disNewChart);
-  })
-}
-
-
+//CHARTS.JS!!!
 
 function toggleArrayItem(array, value) {
   let i = array.indexOf(value);
@@ -309,67 +304,48 @@ function toggleArrayItem(array, value) {
   }
 }
 
+let chartDataset =[];
+
+
+
+
 let disNewChart = document.getElementById('power-comparison-chart').getContext('2d');
 
-
-function secondstotime(secs)
-{
-    var t = new Date(1970,0,1);
-    t.setSeconds(secs);
-    var s = t.toTimeString().substr(0,8);
-    if(secs > 86399)
-        s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
-    return s;
-}
-
-function pdFormatting(secs) {
-  if(secs >= 60) {
-    return secs/60 + 'min';
-  }
-return secs + 's';
-};
-
-
 function makeDisChart(theContext) {
-  Chart.defaults.global.animation = false;
-  let chart = new Chart(theContext, {
-      // The type of chart we want to create
-      type: 'line',
-
-      // The data for our dataset
-      data: {
-          labels: timeArr.map(x => pdFormatting(x)),
-          datasets: dataset
-      },
-      // Configuration options go here
-      options: {
-        responsive: 'true',
-        scales: {
-          gridlines: {
-            display: true,
+let chart = new Chart(theContext, {
+    // The type of chart we want to create
+    type: 'line',
+    // The data for our dataset
+    data: {
+        labels: timeArr,
+        datasets: chartDataset,
+    },
+    // Configuration options go here
+    options: {
+      responsive: 'true',
+      scales: {
+        gridlines: {
+          display: true,
+        },
+        xAxes: [{
+          ticks: {
+            min: 0,
           },
-          xAxes: [{
-            ticks: {
-              min: 0,
-            },
-            scaleLabel: {
-              display: true
-            },
-            ticks: {
-              beginAtZero: true,
-            }
-          }], 
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepSize: 120,
-            },
-          }],
-        }
-
+          scaleLabel: {
+            display: true
+          },
+          ticks: {
+            beginAtZero: true,
+          }
+        }], 
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 120,
+          },
+        }],
       }
-  });
+
+    }
+});
 }
-
-
-
