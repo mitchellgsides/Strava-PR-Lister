@@ -3,12 +3,13 @@
     color: whitesmoke;
 }
 
-html {
+
+body {
+    margin: 0 auto;
   background-position: center center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
-  width: auto;
   background: 
     linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)
     ),
@@ -19,9 +20,6 @@ html {
     list-style-type: none;
 }
 
-body {
-    margin: 0px;
-}
 
 header, nav {
     text-align: center;
@@ -39,19 +37,20 @@ nav {
 }
 
 #pract-name {
+    display: none;
     text-align: left;
     font-weight: normal;
 }
 
 #pract-act {
+    display: none;
     font-size: 25px;
+    color: var(--drkGrn);
 }
 
 #load-msg {
     text-align: center;
 }
-
-
 
 #step1, #js-show-power, #instructions-button {
     background-color: var(--mainCol);
@@ -73,6 +72,13 @@ nav {
 
 .instructions {
     display: none;
+    padding: 0px;
+    margin: 15px;
+}
+
+ol.instructions li {
+    margin-bottom: 0px;
+    list-style-type: upper-roman !important;
 }
 
 #step1 > a {
