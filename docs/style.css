@@ -13,11 +13,7 @@ body {
   background: 
     linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)
     ),
-<<<<<<< HEAD
     url('./wallpaper-1de3c9.jpg');
-=======
-    url('Strava-PR-Lister/images-etc/wallpaper-1de3c9.jpg');
->>>>>>> b0971ba9a9aecf9eaa6cb95759784885cd8d5447
 }
 
 * li {
