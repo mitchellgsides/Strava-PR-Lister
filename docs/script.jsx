@@ -1,6 +1,7 @@
 'use strict'
 
 //get "code" from returned URL
+let activityArray;
 let currentLocation;
 let accessCode;
 
@@ -33,7 +34,7 @@ function collectAccessToken() {
 }
 let activityPower;
 let authenticatedAthlete;
-let activityArray;
+
 //returns authenticated athlete
 function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
@@ -108,11 +109,19 @@ let step6 = function() {
 };
 
 
+let step7 = function() {
+   let promise = new Promise(function(resolve, reject){
+      setTimeout(function() {
+         resolve(renderPage());
+      }, 900);
+      console.log('Page Rendered');
+   });
+   return promise;
+};
+
 //run authentication
-step2().then(step3).then(step4).then(step5).then(step6);
+step2().then(step3).then(step4).then(step5).then(step6).then(step7);
 
-
-//UNCOMMENT ABOVE HERE 
 
 const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 3600, 5400];
 
@@ -171,18 +180,18 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
 function renderPage() {
   $('#js-show-power').on('click', function(event) {
     $('#load-msg').remove();
-    $('#js-activity-list').css('display', 'block');
+    $('#js-activity-list').css('display', 'flex');
     $('#js-activity-list').empty();
     $('.power-analysis-list').empty();
     $('#js-show-power').html('<span>Reset</span>');
     for(let i = 0; i < activityArray.length; i++) {
       $('#js-activity-list').append(`
         <li class='individual-activity'>
-          <a class="title">${activityArray[i].name}</a>
+          <span class="title">${activityArray[i].name}</span>
           <ul class='act-stats title'>
-            <li>Date: ${dateFormat(activityArray[i].start_date)}</li>
-            <li>Distance: ${mToMi(activityArray[i].distance)}</li>
-            <li>Moving Time: ${toHHMMSS(activityArray[i].moving_time)}</li>
+            <li>Date: <br>${dateFormat(activityArray[i].start_date)}</li>
+            <li>Distance: <br>${mToMi(activityArray[i].distance)}</li>
+            <li>Moving Time: <br>${toHHMMSS(activityArray[i].moving_time)}</li>
           </ul>
           <ul id='${i}' class="power-analysis-list"></ul>
         </li>`
@@ -190,9 +199,11 @@ function renderPage() {
     let anId = i;
     if(activityArray[i].rideData.hasOwnProperty('watts')) {
       $(`#${i}`).append(
-        `<li class="average-power-item">Average Power: ${average(activityArray[anId].rideData.watts.data)}w </li>
-        <li class="normalized-power-item">Normalized Power: ${normPow(activityArray[anId].rideData.watts.data)}w </li>
-        <li class="best-5-power-item">Best 5min Power: ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
+        `<li class="average-power-item"><strong>Average Power:</strong> ${average(activityArray[anId].rideData.watts.data)}w </li>
+        <li class="normalized-power-item"><strong>Normalized Power:</strong> ${normPow(activityArray[anId].rideData.watts.data)}w </li>
+        <li class="best-5-power-item"><strong>Best 5min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
+        </li>
+        <li class="best-20-power-item"><strong>Best 20min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 1200)}w</li>
         </li>`
       );
     } else {$(`#${i}`).append('No Power Data Available')}
@@ -203,16 +214,20 @@ function renderPage() {
     }
 )}
 
-renderPage();
+$(renderPage);
 
 $('#power-data-button').on('click', function(event) {
   event.preventDefault();
   powerAnalyze();
 })
 
-//remove disNewChart on click, but makeDisChart inserts it... 
 const canvas = document.getElementById('power-comparison-chart');
-let disNewChart = canvas.getContext('2d');
+//let disNewChart = canvas.getContext('2d');
+
+$('#instructions-button').on('click', function(event) {
+  event.preventDefault();
+  $('.instructions').toggle();
+})
 
 function showPowerAnalysis() {
   $('.title').on("click", function(event) {
@@ -222,15 +237,17 @@ function showPowerAnalysis() {
     //clears Dataset
     chartDataset = [];
     let actArrIndex = $(this).parent().find('.power-analysis-list').attr('id');
+    if(activityArray[actArrIndex].rideData.hasOwnProperty('watts')) {
     let value = {
-      label: activityArray[actArrIndex].name,
+      label: activityArray[actArrIndex].name + 'Power Records (watts)',
       backgroundColor: 'rgb(0, 0, 0, 0.8)',
       borderColor: 'rgb(0, 0, 0, 0.8)',
       fill: false,
       data: createPowDurCurve(activityArray[actArrIndex].rideData.watts.data, timeArr)
     };
     toggleArrayItem(chartDataset, value);
-    makeDisChart(disNewChart);
+    //makeDisChart(disNewChart);
+  }
   })
 };
 
@@ -320,15 +337,17 @@ function toggleArrayItem(array, value) {
   }
 }
 
-let chartDataset =[];
+const labelArr = ['1s', '5s', '10s', '12s', '20s', '30s', '1min', '2min', '5min', '6min', '10min', '12min', '20min', '30min', '60min', '90min'];
 
+let chartDataset =[];
+/*
 function makeDisChart(theContext) {
   let chart = new Chart(theContext, {
       // The type of chart we want to create
       type: 'line',
       // The data for our dataset
       data: {
-          labels: timeArr,
+          labels: labelArr,
           datasets: chartDataset,
       },
       // Configuration options go here
@@ -372,3 +391,4 @@ function makeDisChart(theContext) {
       }
   });
 }
+*/
