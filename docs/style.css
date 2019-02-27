@@ -52,7 +52,7 @@ nav {
     text-align: center;
 }
 
-#step1, #js-show-power, #instructions-button {
+#step1, #js-show-power, #instructions-button, #demo-account, #user-account {
     background-color: var(--mainCol);
     border: none;
     padding: 10px 10px;
@@ -61,7 +61,7 @@ nav {
     margin: 4px 2px;
 }
 
-#step1:hover, #js-show-power:hover, #instructions-button:hover {
+#step1:hover, #js-show-power:hover, #instructions-button:hover, #demo-account:hover, #user-account:hover {
     background-color: var(--drkRd);
     cursor: pointer;
 }

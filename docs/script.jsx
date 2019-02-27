@@ -7,13 +7,19 @@ let accessCode;
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-  currentLocation = //window.location.href;
-    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
-    //console.log(currentLocation);
+  currentLocation = window.location.href;
+    console.log(currentLocation);
     accessCode = (currentLocation.split(/&|=/))[3];
     console.log('Access Code Retrieved');
     return accessCode;
 }
+
+function getAccessCodeDemo() {
+  currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
+  accessCode = (currentLocation.split(/&|=/))[3];
+  console.log('Access Code Retrieved')
+}
+
 
 let accessToken;
 let refreshToken;
@@ -119,9 +125,32 @@ let step7 = function() {
    return promise;
 };
 
-//run authentication
-step2().then(step3).then(step4).then(step5).then(step6).then(step7);
+//run Authentication
+function runAuth() {
+  $('#user-account').on('click', function(event) { 
+    event.preventDefault();
+    step2().then(step3).then(step4).then(step5).then(step6).then(step7);
+})
+}
 
+$(runAuth);
+
+//demo Authentication
+let step2Demo = function() {
+   let promise = new Promise(function(resolve, reject){
+         resolve(getAccessCodeDemo());
+   });
+   return promise;
+};
+
+function demoAuth() {
+  $('#demo-account').on('click', function(event) {
+    event.preventDefault();
+    step2Demo().then(step3).then(step4).then(step5).then(step6).then(step7);
+  })
+}
+
+$(demoAuth)
 
 const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 3600, 5400];
 
@@ -206,7 +235,7 @@ function renderPage() {
         <li class="best-20-power-item"><strong>Best 20min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 1200)}w</li>
         </li>`
       );
-    } else {$(`#${i}`).append('No Power Data Available')}
+    } else {$(`#${i}`).append('No Power Data Available').css('color', 'black')}
   }
     //newPowerAnalysis();
     showPowerAnalysis();
