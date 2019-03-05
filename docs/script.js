@@ -139,8 +139,9 @@ function runAuth() {
 $(runAuth);
 
 function linkStravaRemove() {
-  if (accessCode !== undefined) {
-    console.log('WORKING');
+  currentLocation = window.location.href;
+  accessCode = (currentLocation.split(/&|=/))[3];
+  if(accessCode !== undefined) {
     $('#authorize').remove();
   }
 }

@@ -207,8 +207,8 @@ span.title:hover {
     background-color: var(--mainCol);
     bottom: 0;
     width: 100%;
-    height: 2.5rem;
-    padding: 6px;
+    padding: 7px;
+
 }
 
 footer a {
