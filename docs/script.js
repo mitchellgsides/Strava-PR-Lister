@@ -9,7 +9,8 @@ let runList = [];
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-    currentLocation = window.location.href;
+    currentLocation = //window.location.href;
+    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=83e00237389734fee9e3dabc4b3de2cf3c62f07e&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
     accessCode = (currentLocation.split(/&|=/))[3];
     return accessCode;
 }
@@ -119,12 +120,18 @@ let activityDataPromise = function() {
 function runAuth() {
   $('#user-account').on('click', function(event) { 
     event.preventDefault();
+    activityArray = [];
+    runList = [];
+    $('#js-activity-list').empty();
+    $('#js-run-activities').empty();
     $('#authorize').remove();
+    $('#act-type-title').css('display', 'none');
     $('#load-msg').html('Gathering data from Strava...');
     $('#js-app-instructions').remove();
     $('#js-show-power').css('display', 'flex');
     $('#js-show-runs').css('display', 'flex');
-    $('#user-account').remove();
+    $('#user-account').toggle();
+    $('#demo-account').css('display', 'block');
     accessCodePromise().then(accessTokenPromise).then(authenticatedAthletePromise).then(activityListPromise).then(activityDataPromise);
 })
 }
@@ -147,15 +154,24 @@ let demoAccessCodePromise = function() {
    return promise;
 };
 
+function clearActArr() {
+  activityArray = [];
+  runList = [];
+}
+
 function demoAuth() {
   $('#demo-account').on('click', function(event) { 
     event.preventDefault();
-    $('#demo-account').remove();
-    $('#authorize').remove();
+    activityArray = [];
+    runList = [];
+    $('#act-type-title').css('display', 'none');
+    $('#js-activity-list').empty();
+    $('#js-run-activities').empty();
     $('#js-show-power').css('display', 'flex');
     $('#js-show-runs').css('display', 'flex');
-    $('#user-account').remove();
     $('#js-app-instructions').remove();
+    $('#demo-account').toggle();
+    $('#user-account').toggle();
     $('#load-msg').html('Gathering data from Strava...');
     demoAccessCodePromise().then(accessTokenPromise).then(authenticatedAthletePromise).then(activityListPromise).then(activityDataPromise)
 })
@@ -228,12 +244,13 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
 function renderRideData() {
   $('#js-show-power').on('click', function(event) {
     $('#athlete-banner').css('display', 'flex');
+    $('#act-type-title').html('Ride Activities');
+    $('#act-type-title').css('display', 'block');
     $('#load-msg').html("Select an activity to see personal records from that activity.");
     $('#js-activity-list').css('display', 'flex');
-    $('#js-activity-list').empty();
-    $('.power-analysis-list').empty();
     $('main').css('display', 'flex');
-    $('#ride-act-title').css('display', 'block');
+    $('#js-activity-list').empty();
+    $('#js-run-activities').empty();
     for(let i = 0; i < activityArray.length; i++) {
       $('#js-activity-list').append(`
         <li class='individual-activity'>
@@ -265,14 +282,17 @@ function renderRideData() {
 
 $(renderRideData);
 
+
 function renderRunData() {
 $('#js-show-runs').on('click', function(event) {
   event.preventDefault();
+    $('#js-activity-list').empty();
+    $('#js-run-activities').empty();
+    $('#act-type-title').html('Run Activities')
+    $('#act-type-title').css('display', 'block');
     $('#athlete-banner').css('display', 'flex');
     $('#load-msg').html("Select an activity to see personal records from that activity.");
     $('#js-activity-list').css('display', 'flex');
-    $('#js-activity-list').empty();
-    $('.run-analysis-list').empty();
     $('main').css('display', 'flex');
     $('#ride-act-title').css('display', 'block');
   for(let i = 0; i < runList.length; i++) {

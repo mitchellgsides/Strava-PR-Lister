@@ -44,7 +44,7 @@ main {
     margin: auto;
 }
 
-#ride-act-title, #run-act-title {
+#act-type-title {
     display: none;
     color: var(--drkGrn);
 }
