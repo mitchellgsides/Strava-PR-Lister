@@ -5,14 +5,12 @@ let activityArray = [];
 let currentLocation;
 let accessCode;
 let runList = [];
-linkStravaRemove();
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-    currentLocation = //window.location.href;
-    'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=83e00237389734fee9e3dabc4b3de2cf3c62f07e&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
-    accessCode = (currentLocation.split(/&|=/))[3];
-    return accessCode;
+  currentLocation = window.location.href;
+  accessCode = (currentLocation.split(/&|=/))[3];
+  return accessCode;
 }
 
 let accessToken;
@@ -21,13 +19,14 @@ const client_secret = 'b7abbcd02c9483f9007218aaf47f7a0e929e9ee1';
 
 //returns accessToken and refreshToken
 function collectAccessToken() {
-    $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=${client_secret}&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
-          if(status === 'success') {
-          accessToken = data.access_token;
-          refreshToken = data.refresh_token;
-          } else(
-          alert('Request Error'));
-        })
+  $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=${client_secret}&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
+    if(status === 'success') {
+      accessToken = data.access_token;
+      refreshToken = data.refresh_token;
+    } 
+      else(
+        alert('Request Error'));
+      })
     return accessToken, refreshToken;
 }
 let activityPower;
@@ -36,63 +35,64 @@ let authenticatedAthlete;
 //returns authenticated athlete
 function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
-      authenticatedAthlete = data.id;
-      $('#authenticated-name').html(`${data.firstname}`)
-      $('#authenticated-location').html(`${data.city}, ${data.state}`);
-      $('#profile-picture').html(`<img src=${data.profile}>`);
-    }, 'jsonp');
+    authenticatedAthlete = data.id;
+    $('#authenticated-name').html(`${data.firstname}`)
+    $('#authenticated-location').html(`${data.city}, ${data.state}`);
+    $('#profile-picture').html(`<img src=${data.profile}>`);
+  }, 'jsonp');
     return authenticatedAthlete;
 }
 
 //creates activityArray
 function getActivityList() {
   $.get(`https://www.strava.com/api/v3/athletes/${authenticatedAthlete}/activities?access_token=${accessToken}`, function(data, status) {
-            for(let i = 0; i < data.length; i++) {
-              //collect ride activity data
-              if(data[i].type === 'Ride') {
-              activityArray.push(data[i]); 
-              //collect run activity data
-              } else if(data[i].type ==='Run') {
-                runList.push(data[i]);
-              }
-            }
+    for(let i = 0; i < data.length; i++) {
+    //collect ride activity data
+      if(data[i].type === 'Ride') {
+        activityArray.push(data[i]); 
+    //collect run activity data
+      } 
+      else if(data[i].type ==='Run') {
+        runList.push(data[i]);
+      }
+    }
    }, 'jsonp');
 }
 
 // adds distance and powerData to each activity that has power data available
 function addActivityData() {
-  for(let i = 0; i < activityArray.length; i++) {
-          let id = activityArray[i].id;
-          $.get(`https://www.strava.com/api/v3/activities/${id}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
-          activityArray[i].rideData = data;
-          }, 'jsonp');
-        }
-        $('#load-msg').html('Data Loaded. Click "Show Data" to see your activities');
-        alert('Data Loaded. Click "Show Data" to see activities.');
+    for(let i = 0; i < activityArray.length; i++) {
+      let id = activityArray[i].id;
+      $.get(`https://www.strava.com/api/v3/activities/${id}/streams/?access_token=${accessToken}&keys=watts&key_by_type=true/`, function(data, status) {
+      activityArray[i].rideData = data;
+      }, 'jsonp');
+    }
+    $('#load-msg').html('Data Loaded. Click "Show Data" to see your activities');
+    alert('Data Loaded. Click "Show Data" to see activities.');
  }
 
 
 // Section for authentication promises and data import from STRAVA API, which requiires specific order
 let accessCodePromise = function() {
-   let promise = new Promise(function(resolve, reject){
-         resolve(getAccessCode());
-   });
-   return promise;
+  let promise = new Promise(function(resolve, reject){
+    resolve(getAccessCode());
+  });
+  return promise;
 };
  
  
  
 let accessTokenPromise = function() {
-   let promise = new Promise(function(resolve, reject){
-         resolve(collectAccessToken());
-   });
+  let promise = new Promise(function(resolve, reject){
+    resolve(collectAccessToken());
+  });
    return promise;
 };
  
 let authenticatedAthletePromise = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
-         resolve(getAuthenticatedAthlete());
+        resolve(getAuthenticatedAthlete());
       }, 400);
    });
    return promise;
@@ -101,7 +101,7 @@ let authenticatedAthletePromise = function() {
 let activityListPromise = function() {
    let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
-         resolve(getActivityList());
+        resolve(getActivityList());
       }, 600);
    });
    return promise;
@@ -110,7 +110,7 @@ let activityListPromise = function() {
 let activityDataPromise = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
-         resolve(addActivityData());
+        resolve(addActivityData());
       }, 900);
    });
    return promise;
@@ -133,7 +133,7 @@ function runAuth() {
     $('#user-account').toggle();
     $('#demo-account').css('display', 'block');
     accessCodePromise().then(accessTokenPromise).then(authenticatedAthletePromise).then(activityListPromise).then(activityDataPromise);
-})
+  })
 }
 
 $(runAuth);
@@ -141,21 +141,20 @@ $(runAuth);
 function linkStravaRemove() {
   if (accessCode !== undefined) {
     console.log('WORKING');
-      $('#authorize').remove();
+    $('#authorize').remove();
   }
 }
 
 // This section establishes demo account to demo the app.
 function demoAccessCode() {
-    //currentLocation = window.location.href;
-    currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=f81ae3a29974ed99d2939dd63e9104ea2a3ec988&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write#_=_';
-    accessCode = (currentLocation.split(/&|=/))[3];
-    return accessCode;
+  currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=f81ae3a29974ed99d2939dd63e9104ea2a3ec988&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write#_=_';
+  accessCode = (currentLocation.split(/&|=/))[3];
+  return accessCode;
 }
 
 let demoAccessCodePromise = function() {
    let promise = new Promise(function(resolve, reject){
-         resolve(demoAccessCode());
+      resolve(demoAccessCode());
    });
    return promise;
 };
@@ -200,7 +199,7 @@ function createPowDurCurve(array, time) {
 }
 
 function maxPower(array) {
-    return Math.max(...array);
+  return Math.max(...array);
 };
 
 function average(array) {
@@ -214,9 +213,8 @@ function average(array) {
 function rollingAverage(array, seconds) {
   let newArray = [];
   for(let i = 0; i < array.length-1; i++) {
-      if(i > seconds) {
-      //array.slice is what creates sections so that you can find the average power for the duration you want
-    newArray.push(average(array.slice(i, i + seconds)))
+    if(i > seconds) {
+      newArray.push(average(array.slice(i, i + seconds)))
     }
   }
   return newArray;
@@ -230,9 +228,9 @@ function maxOfDuration(array, duration) {
     for(let i = 0; i < array.length; i++) {
       avgArr.push(average(array.slice(i, i + duration)));
     }
-  return Math.max(...avgArr) + 'w';
+    return Math.max(...avgArr) + 'w';
   }
-    return `The ride duration is only: ${Math.round(array.length / 60)} minutes...`
+  return `The ride duration is only: ${Math.round(array.length / 60)} minutes...`
 };
 
 
@@ -256,6 +254,7 @@ function renderRideData() {
     $('#js-activity-list').css('display', 'flex');
     $('main').css('display', 'flex');
     $('#js-activity-list').empty();
+    $('.footer').css('position', 'sticky');
     $('#js-run-activities').empty();
     for(let i = 0; i < activityArray.length; i++) {
       $('#js-activity-list').append(`
@@ -294,6 +293,7 @@ $('#js-show-runs').on('click', function(event) {
   event.preventDefault();
     $('#js-activity-list').empty();
     $('#js-run-activities').empty();
+    $('footer').css('bottom', '0');
     $('#act-type-title').html('Run Activities')
     $('#act-type-title').css('display', 'block');
     $('#athlete-banner').css('display', 'flex');
@@ -326,9 +326,9 @@ $(renderRunData);
 
 //format minutes (for pace)
 function minTommss(minutes){
-    let sign = minutes < 0 ? "-" : "";
-    let min = Math.floor(Math.abs(minutes));
-    let sec = Math.floor((Math.abs(minutes) * 60) % 60);
+  let sign = minutes < 0 ? "-" : "";
+  let min = Math.floor(Math.abs(minutes));
+  let sec = Math.floor((Math.abs(minutes) * 60) % 60);
   return sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
 }
 
@@ -349,14 +349,14 @@ function showPowerAnalysis() {
 };
 
 let toHHMMSS = (secs) => {
-    let sec_num = parseInt(secs, 10)    
-    let hours   = Math.floor(sec_num / 3600) % 24
-    let minutes = Math.floor(sec_num / 60) % 60
-    let seconds = sec_num % 60    
-    return [hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        .filter((v,i) => v !== "00" || i > 0)
-        .join(":")
+  let sec_num = parseInt(secs, 10)    
+  let hours   = Math.floor(sec_num / 3600) % 24
+  let minutes = Math.floor(sec_num / 60) % 60
+  let seconds = sec_num % 60    
+  return [hours,minutes,seconds]
+      .map(v => v < 10 ? "0" + v : v)
+      .filter((v,i) => v !== "00" || i > 0)
+      .join(":")
 }
 
 function mToMi(meters) {
@@ -379,7 +379,7 @@ function secondstotime(secs) {
     t.setSeconds(secs);
     var s = t.toTimeString().substr(0,8);
     if(secs > 86399)
-        s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
+      s = Math.floor((t - Date.parse("1/1/70")) / 3600000) + s.substr(2);
     return s;
 }
 

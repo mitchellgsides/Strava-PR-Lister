@@ -200,12 +200,15 @@ span.title:hover {
     cursor: pointer;
 }
 
-footer {
+
+.footer {
     color: whitesmoke;
-    position: relative;
-    bottom: 0px;
+    position: absolute;
+    background-color: var(--mainCol);
+    bottom: 0;
     width: 100%;
-    padding: 10px;
+    height: 2.5rem;
+    padding: 6px;
 }
 
 footer a {
