@@ -5,7 +5,7 @@ let activityArray = [];
 let currentLocation;
 let accessCode;
 let runList = [];
-
+linkStravaRemove();
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
@@ -37,7 +37,7 @@ let authenticatedAthlete;
 function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
       authenticatedAthlete = data.id;
-      $('#authenticated-name').html(`${data.username}`)
+      $('#authenticated-name').html(`${data.firstname}`)
       $('#authenticated-location').html(`${data.city}, ${data.state}`);
       $('#profile-picture').html(`<img src=${data.profile}>`);
     }, 'jsonp');
@@ -138,6 +138,12 @@ function runAuth() {
 
 $(runAuth);
 
+function linkStravaRemove() {
+  if (accessCode !== undefined) {
+    console.log('WORKING');
+      $('#authorize').remove();
+  }
+}
 
 // This section establishes demo account to demo the app.
 function demoAccessCode() {
