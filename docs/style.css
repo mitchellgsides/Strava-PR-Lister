@@ -13,7 +13,7 @@ body {
         rgba(0, 0, 0, 0.75),
         rgba(0, 0, 0, 0.75)
         ), 
-        url('./wallpaper-1de3c9.jpg');
+        url('wallpaper-1de3c9.jpg');
 }
 
 * li {
@@ -166,7 +166,7 @@ ul.act-stats li {
 
 
 ul.power-analysis-list, ul.run-analysis-list {
-    background-image: url('./topography.jpg');
+    background-image: url('topography.jpg');
     padding: 10px !important;
 }
 
