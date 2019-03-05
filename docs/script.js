@@ -1,25 +1,18 @@
 'use strict'
 
 //get "code" from returned URL
-let activityArray;
+let activityArray = [];
 let currentLocation;
 let accessCode;
+let runList = [];
+
 
 //returns accessCode value, used for collecting access token
 function getAccessCode() {
-  currentLocation = window.location.href;
-    console.log(currentLocation);
+    currentLocation = window.location.href;
     accessCode = (currentLocation.split(/&|=/))[3];
-    console.log('Access Code Retrieved');
     return accessCode;
 }
-
-function getAccessCodeDemo() {
-  currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=c49e70775538215f5fefffbcd59f18144f6db446&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write';
-  accessCode = (currentLocation.split(/&|=/))[3];
-  console.log('Access Code Retrieved')
-}
-
 
 let accessToken;
 let refreshToken;
@@ -29,14 +22,12 @@ const client_secret = 'b7abbcd02c9483f9007218aaf47f7a0e929e9ee1';
 function collectAccessToken() {
     $.post(`https://www.strava.com/oauth/token?client_id=32540&client_secret=${client_secret}&code=${accessCode}&grant_type=authorization_code`, function(data, status) {
           if(status === 'success') {
-          //console.log(data);
           accessToken = data.access_token;
           refreshToken = data.refresh_token;
           } else(
           alert('Request Error'));
         })
-        console.log('Access Token Retrieved');
-        return accessToken, refreshToken;
+    return accessToken, refreshToken;
 }
 let activityPower;
 let authenticatedAthlete;
@@ -45,19 +36,29 @@ let authenticatedAthlete;
 function getAuthenticatedAthlete() {
   $.get(`https://www.strava.com/api/v3/athlete/?access_token=${accessToken}`, function(data, status) {
       authenticatedAthlete = data.id;
-      console.log('Authenticated Athlete id ' + authenticatedAthlete);
+      $('#authenticated-name').html(`${data.username}`)
+      $('#authenticated-location').html(`${data.city}, ${data.state}`);
+      $('#profile-picture').html(`<img src=${data.profile}>`);
     }, 'jsonp');
-    console.log('Authenticated Athlete Found');
     return authenticatedAthlete;
 }
 
 //creates activityArray
 function getActivityList() {
   $.get(`https://www.strava.com/api/v3/athletes/${authenticatedAthlete}/activities?access_token=${accessToken}`, function(data, status) {
-      activityArray = data;
+            for(let i = 0; i < data.length; i++) {
+              //collect ride activity data
+              if(data[i].type === 'Ride') {
+              activityArray.push(data[i]); 
+              //collect run activity data
+              } else if(data[i].type ==='Run') {
+                runList.push(data[i]);
+              }
+            }
    }, 'jsonp');
 }
 
+// adds distance and powerData to each activity that has power data available
 function addActivityData() {
   for(let i = 0; i < activityArray.length; i++) {
           let id = activityArray[i].id;
@@ -65,13 +66,13 @@ function addActivityData() {
           activityArray[i].rideData = data;
           }, 'jsonp');
         }
-        console.log('activityArray Created');
         $('#load-msg').html('Data Loaded. Click "Show Data" to see your activities');
         alert('Data Loaded. Click "Show Data" to see activities.');
  }
 
 
-let step2 = function() {
+// Section for authentication promises and data import from STRAVA API, which requiires specific order
+let accessCodePromise = function() {
    let promise = new Promise(function(resolve, reject){
          resolve(getAccessCode());
    });
@@ -80,14 +81,14 @@ let step2 = function() {
  
  
  
-let step3 = function() {
+let accessTokenPromise = function() {
    let promise = new Promise(function(resolve, reject){
          resolve(collectAccessToken());
    });
    return promise;
 };
  
-let step4 = function() {
+let authenticatedAthletePromise = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(getAuthenticatedAthlete());
@@ -96,7 +97,7 @@ let step4 = function() {
    return promise;
 };
 
-let step5 = function() {
+let activityListPromise = function() {
    let promise = new Promise(function(resolve, reject) {
       setTimeout(function() {
          resolve(getActivityList());
@@ -105,7 +106,7 @@ let step5 = function() {
    return promise;
 };
 
-let step6 = function() {
+let activityDataPromise = function() {
    let promise = new Promise(function(resolve, reject){
       setTimeout(function() {
          resolve(addActivityData());
@@ -114,45 +115,58 @@ let step6 = function() {
    return promise;
 };
 
-
-let step7 = function() {
-   let promise = new Promise(function(resolve, reject){
-      setTimeout(function() {
-         resolve(renderPage());
-      }, 900);
-      console.log('Page Rendered');
-   });
-   return promise;
-};
-
-//run Authentication
+// run Authentication
 function runAuth() {
   $('#user-account').on('click', function(event) { 
     event.preventDefault();
-    step2().then(step3).then(step4).then(step5).then(step6).then(step7);
+    $('#authorize').remove();
+    $('#load-msg').html('Gathering data from Strava...');
+    $('#js-app-instructions').remove();
+    $('#js-show-power').css('display', 'flex');
+    $('#js-show-runs').css('display', 'flex');
+    $('#user-account').remove();
+    accessCodePromise().then(accessTokenPromise).then(authenticatedAthletePromise).then(activityListPromise).then(activityDataPromise);
 })
 }
 
 $(runAuth);
 
-//demo Authentication
-let step2Demo = function() {
+
+// This section establishes demo account to demo the app.
+function demoAccessCode() {
+    //currentLocation = window.location.href;
+    currentLocation = 'https://mitchellgsides.github.io/Strava-PR-Lister/?state=&code=f81ae3a29974ed99d2939dd63e9104ea2a3ec988&scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write#_=_';
+    accessCode = (currentLocation.split(/&|=/))[3];
+    return accessCode;
+}
+
+let demoAccessCodePromise = function() {
    let promise = new Promise(function(resolve, reject){
-         resolve(getAccessCodeDemo());
+         resolve(demoAccessCode());
    });
    return promise;
 };
 
 function demoAuth() {
-  $('#demo-account').on('click', function(event) {
+  $('#demo-account').on('click', function(event) { 
     event.preventDefault();
-    step2Demo().then(step3).then(step4).then(step5).then(step6).then(step7);
-  })
+    $('#demo-account').remove();
+    $('#authorize').remove();
+    $('#js-show-power').css('display', 'flex');
+    $('#js-show-runs').css('display', 'flex');
+    $('#user-account').remove();
+    $('#js-app-instructions').remove();
+    $('#load-msg').html('Gathering data from Strava...');
+    demoAccessCodePromise().then(accessTokenPromise).then(authenticatedAthletePromise).then(activityListPromise).then(activityDataPromise)
+})
 }
 
-$(demoAuth)
+$(demoAuth);
+// end demo account and Authentication sections
 
+// Data analysis functions
 const timeArr = [1, 5, 10, 12, 20, 30, 60, 120, 300, 360, 600, 720, 1200, 1800, 3600, 5400];
+
 
 function createPowDurCurve(array, time) {
   let powArr = [];
@@ -179,24 +193,28 @@ function rollingAverage(array, seconds) {
   let newArray = [];
   for(let i = 0; i < array.length-1; i++) {
       if(i > seconds) {
-      //array.slice is what creates sections so that you can find the average of the duration you want
+      //array.slice is what creates sections so that you can find the average power for the duration you want
     newArray.push(average(array.slice(i, i + seconds)))
     }
   }
   return newArray;
 };
 
+
+// returns maximum average power for the duration specified
 function maxOfDuration(array, duration) {
   if(duration > 0 && duration < array.length) {
     let avgArr = [];
     for(let i = 0; i < array.length; i++) {
       avgArr.push(average(array.slice(i, i + duration)));
     }
-  return Math.max(...avgArr);
+  return Math.max(...avgArr) + 'w';
   }
-    return `Error: Please enter an integer between 0 and ${array.length}s (the duration of your ride)...`
+    return `The ride duration is only: ${Math.round(array.length / 60)} minutes...`
 };
 
+
+// returns normalized power for duration specified. Default is entire duration
 function normPow(array, startPoint = 0, duration = array.length - 1) {
   let normArray = rollingAverage(array, 30);
   for(let i = startPoint; i < duration; i++) {
@@ -206,13 +224,16 @@ function normPow(array, startPoint = 0, duration = array.length - 1) {
   return 'Cannot get Normalized Power';
 };
 
-function renderPage() {
+
+function renderRideData() {
   $('#js-show-power').on('click', function(event) {
-    $('#load-msg').remove();
+    $('#athlete-banner').css('display', 'flex');
+    $('#load-msg').html("Select an activity to see personal records from that activity.");
     $('#js-activity-list').css('display', 'flex');
     $('#js-activity-list').empty();
     $('.power-analysis-list').empty();
-    $('#js-show-power').html('<span>Reset</span>');
+    $('main').css('display', 'flex');
+    $('#ride-act-title').css('display', 'block');
     for(let i = 0; i < activityArray.length; i++) {
       $('#js-activity-list').append(`
         <li class='individual-activity'>
@@ -230,53 +251,74 @@ function renderPage() {
       $(`#${i}`).append(
         `<li class="average-power-item"><strong>Average Power:</strong> ${average(activityArray[anId].rideData.watts.data)}w </li>
         <li class="normalized-power-item"><strong>Normalized Power:</strong> ${normPow(activityArray[anId].rideData.watts.data)}w </li>
-        <li class="best-5-power-item"><strong>Best 5min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}w</li>
+        <li class="best-5-power-item"><strong>Best 5min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 300)}</li>
         </li>
-        <li class="best-20-power-item"><strong>Best 20min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 1200)}w</li>
+        <li class="best-20-power-item"><strong>Best 20min Power:</strong> ${maxOfDuration(activityArray[anId].rideData.watts.data, 1200)}</li>
         </li>`
       );
-    } else {$(`#${i}`).append('No Power Data Available').css('color', 'black')}
+    } else {$(`#${i}`).append('<strong>No Power Data Available</strong>').css('color', 'black')}
   }
-    //newPowerAnalysis();
     showPowerAnalysis();
     $('.power-analysis-list').css('display', 'none');
     }
 )}
 
-$(renderPage);
+$(renderRideData);
 
-$('#power-data-button').on('click', function(event) {
+function renderRunData() {
+$('#js-show-runs').on('click', function(event) {
   event.preventDefault();
-  powerAnalyze();
-})
+    $('#athlete-banner').css('display', 'flex');
+    $('#load-msg').html("Select an activity to see personal records from that activity.");
+    $('#js-activity-list').css('display', 'flex');
+    $('#js-activity-list').empty();
+    $('.run-analysis-list').empty();
+    $('main').css('display', 'flex');
+    $('#ride-act-title').css('display', 'block');
+  for(let i = 0; i < runList.length; i++) {
+    $('#js-run-activities').append(`
+    <li class='individual-activity'>
+            <span class="title">${runList[i].name}</span>
+            <ul class='act-stats title'>
+              <li>Date: <br>${dateFormat(runList[i].start_date)}</li>
+              <li>Distance: <br>${mToMi(runList[i].distance)}</li>
+              <li>Moving Time: <br>${toHHMMSS(runList[i].moving_time)}</li>
+            </ul>
+            <ul id='${i}' class="run-analysis-list"></ul>
+          </li>`)
+    $(`#${i}`).append(
+        `<li class="average-pace-item"><strong>Average Pace: </strong> ${averageRunPace(runList[i].distance, runList[i].moving_time)}/mile </li>
+         <li class='fastest-pace-item'><strong>Max Pace: </strong>${averageRunPace(runList[i].max_speed)}/mile </li>
+      `);
+   }
+   $(showPowerAnalysis);
+   $('.run-analysis-list').css('display', 'none');
+});
+}
 
-const canvas = document.getElementById('power-comparison-chart');
-//let disNewChart = canvas.getContext('2d');
+$(renderRunData);
 
-$('#instructions-button').on('click', function(event) {
-  event.preventDefault();
-  $('.instructions').toggle();
-})
+//format minutes (for pace)
+function minTommss(minutes){
+    let sign = minutes < 0 ? "-" : "";
+    let min = Math.floor(Math.abs(minutes));
+    let sec = Math.floor((Math.abs(minutes) * 60) % 60);
+  return sign + (min < 10 ? "0" : "") + min + ":" + (sec < 10 ? "0" : "") + sec;
+}
+
+//default time = 1 if pace is already present (as in max_speed)
+function averageRunPace(distance, time = 1) {
+  //convert distance/time in meters/sec to minutes/mile
+  return minTommss(26.8224 / (distance / time).toFixed(2));
+}
+
+
 
 function showPowerAnalysis() {
   $('.title').on("click", function(event) {
     event.preventDefault();
-    
     $(this).parent().find('.power-analysis-list').toggle();
-    //clears Dataset
-    chartDataset = [];
-    let actArrIndex = $(this).parent().find('.power-analysis-list').attr('id');
-    if(activityArray[actArrIndex].rideData.hasOwnProperty('watts')) {
-    let value = {
-      label: activityArray[actArrIndex].name + 'Power Records (watts)',
-      backgroundColor: 'rgb(0, 0, 0, 0.8)',
-      borderColor: 'rgb(0, 0, 0, 0.8)',
-      fill: false,
-      data: createPowDurCurve(activityArray[actArrIndex].rideData.watts.data, timeArr)
-    };
-    toggleArrayItem(chartDataset, value);
-    //makeDisChart(disNewChart);
-  }
+    $(this).parent().find('.run-analysis-list').toggle();
   })
 };
 
@@ -305,38 +347,6 @@ function dateFormat(date) {
   return `${monthArr[month]} ${day}, ${year}`;
 }
 
-/* Feature on hold now
-
-
-function newPowerAnalysis() {
-$('.new-power-data').on('submit', function(event) {
-  event.preventDefault();
-  let anId = $(this).parent().parent().attr('id');
-  let duration = $(this).find('input').val();
-  let powerData = activityArray[anId].rideData.watts.data;
-  let newDataPoint = maxOfDuration(powerData, duration);
-  $(this).closest('ul li').append(`<li>${`Best ${duration}s Power: ${newDataPoint}w`}</li>`)
-})
-};
-*/
-
-/* Chart for Individual Rides Tabled For Now
-function chartData() {
-  for(let i = 0; i < activityArray.length; i++) {
-    if(activityArray[i].rideData.hasOwnProperty('watts')) {
-      activityArray[i].dataset = {
-        label: activityArray[i].name,
-        backgroundColor: 'rgb(0, 0, 0)',
-        borderColor: 'rgb(0, 0, 0)',
-        fill: false,
-        data: createPowDurCurve(activityArray[i].rideData.watts.data, timeArr),
-      }
-    } else {console.log('no power data')}
-  }
-}
-*/
-
-
 // format for activity duration
 function secondstotime(secs) {
     var t = new Date(1970,0,1);
@@ -354,70 +364,3 @@ function pdFormatting(secs) {
   }
 return secs + 's';
 };
-
-//CHARTS.JS!!!
-
-function toggleArrayItem(array, value) {
-  let i = array.indexOf(value);
-  if(i === -1) {
-    array.push(value);}
-  else {
-    array.splice(i, 1);
-  }
-}
-
-const labelArr = ['1s', '5s', '10s', '12s', '20s', '30s', '1min', '2min', '5min', '6min', '10min', '12min', '20min', '30min', '60min', '90min'];
-
-let chartDataset =[];
-/*
-function makeDisChart(theContext) {
-  let chart = new Chart(theContext, {
-      // The type of chart we want to create
-      type: 'line',
-      // The data for our dataset
-      data: {
-          labels: labelArr,
-          datasets: chartDataset,
-      },
-      // Configuration options go here
-      options: {
-        elements: {
-          line: {
-            tension: 0.2,
-          },
-        },
-        animation: {
-          duration: 0,
-        },
-        hover: {
-          animationDuration: 0,
-        },
-        responsiveAnimationDuration: 0,
-        responsive: 'true',
-        scales: {
-          gridlines: {
-            display: true,
-          },
-          xAxes: [{
-            ticks: {
-              min: 0,
-            },
-            scaleLabel: {
-              display: true
-            },
-            ticks: {
-              beginAtZero: true,
-            }
-          }], 
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepSize: 120,
-            },
-          }],
-        }
-
-      }
-  });
-}
-*/

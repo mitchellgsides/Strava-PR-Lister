@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<div class="background-transparency">
 <head>
-    <title>Strava PR Analysis</title>
+    <title>Strava Quick Analysis</title>
     <meta description="This app is intended to help users determine their personal record power data">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,34 +9,39 @@
 </head>
 <body>
         <header class="header">
-            <h1>Strava Power Analysis</h1>
+            <h1>Strava Quick Analysis</h1>
         </header>
         <nav class="nav">
-            <button id="step1" type="submit"><a href="https://www.strava.com/oauth/authorize/?client_id=32540&amp;response_type=code&amp;scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write&amp;redirect_uri=https://mitchellgsides.github.io/Strava-PR-Lister/">Authorize Strava Access</a></button>
-            <button id="demo-account">Demo!</button>
+            <button id="authorize" type="submit"><a href="https://www.strava.com/oauth/authorize/?client_id=32540&amp;response_type=code&amp;scope=read_all,read,profile:read_all,profile:write,activity:read_all,activity:write&amp;redirect_uri=https://mitchellgsides.github.io/Strava-PR-Lister/">Authorize Strava Access</a></button>
             <button id="user-account">User Account</button>
-            <button type="submit" id="js-show-power"><span>Show Data</span></button>
-            <button id="instructions-button">Instructions</button>
+            <button id="demo-account">Demo Account</button>
+            <button id="js-show-power"><span>Show Ride Data</span></button>
+            <button id="js-show-runs"><span>Show Run Data</span></button>
         </nav>
+        <div id="js-app-instructions">
+            <h3>Welcome to Strava Quick Analysis</h3>
+            <p>This application is designed as an introductory power analysis platform. 
+                Using the app, you'll be able to quickly view and compare your power records from individual activities.
+                The app requires power data from Strava activities. If you don't have a Strava account, 
+                or your Strava activities do not have power data, please select "Demo Account" in order to see how the application 
+                works. </p>
+        </div>
+        <div id="load-msg"><i>After authorization from Strava, select "User Account", then please wait while data loads...</i></div>
+        <div id="athlete-banner">
+            <h3 id="authenticated-name">User Name</h3>
+            <h3 id="authenticated-location"></h3>
+            <span id="profile-picture"></span>
+        </div>
         <main class="container">
-            <section class="instructions">
-                <ol class="instructions">
-                    <li>Step One: Authorize Strava</li>
-                    <li>Step Two: When data is loaded, select "Show Data" to display your last 30 activities on Strava.</li>
-                    <li>Step Three: Click a ride you'd like to analyze to see your personal records for that ride.</li>
-                    <p>Note: If you don't have a Strava account, please select "Demo" to see the app in action.</p>
-                </ol>
-            </section>
-            <section class="data-list">
-                <div id="athlete-banner">
-                    <h3 id="pract-name">Mitchell Sides</h3>
-                    <h3 id="pract-act">Activities</h3>
-                </div>
-                <!--<section class="power-comp-chart">
-                    <canvas id="power-comparison-chart" class="deezChartz"></canvas>
-                </section>-->
-                <div id="load-msg">After authorization from Strava, select "User Account", then please wait while data loads...</div>
+            <h3 id="ride-act-title">Ride Activities</h3>
+            <section class="data-list" aria-live="polite">
+
                 <ul id="js-activity-list" style="display: block;">
+                </ul>
+            </section>
+            <h3 id="run-act-title">Run Activities</h3>
+            <section class="run-data-list"  aria-live='polite'>
+                <ul id="js-run-activities">
                 </ul>
             </section>
         </main>
@@ -46,8 +50,7 @@
             <h4><a href="">Built by Mitchell Sides</a></h4>
         </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js'></script>
-<script src="script.jsx"></script>
+<script src="script.js"></script>
 </body>
-</div>
 </html>
+
